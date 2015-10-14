@@ -1,12 +1,12 @@
-# eveningdrive
+# eveningdriver
 ### Streaming ETL using webhooks
 
-eveningdrive is a simple ETL tool operating on JSON data, streaming events
+eveningdriver is a simple ETL tool operating on JSON data, streaming events
 through a series of transformation steps. Incoming data is received from
 webhooks or scheduled steps and passed on, being transformed or output by
 each step along the way.
 
-eveningdrive uses redis as a backend to provide a reliable, atomic queue
+eveningdriver uses redis as a backend to provide a reliable, atomic queue
 of events to be processed. The event-driven model allows each step to run
 independently across processes or machines, allowing the system to scale
 as far as the queue will.
