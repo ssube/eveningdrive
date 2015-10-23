@@ -17,6 +17,7 @@ const paths = {
   },
   globs: {
     es6: '**/*.es6',
+    json: '**/*.json',
   },
   name: {
     main: 'main.bundle.js',
@@ -25,6 +26,9 @@ const paths = {
 
 function webpackOptions(name, test) {
   return {
+    externals: {
+      'config': './config'
+    },
     module: {
       preLoaders: [{
         test: /\.es6$/,
@@ -36,8 +40,8 @@ function webpackOptions(name, test) {
       }]
     },
     node: {
-      global: false,
-      process: false,
+      global: true,
+      process: true,
     },
     output: {
       filename: name,
@@ -46,7 +50,8 @@ function webpackOptions(name, test) {
     resolve: {
       extensions: ['', '.es6', '.js'],
       root: path.join(__dirname, paths.src.main)
-    }
+    },
+    target: 'node'
   };
 }
 
@@ -57,6 +62,11 @@ gulp.task('clean', function (done) {
 gulp.task('compile', function () {
   return gulp.src(path.join(paths.src.main, paths.globs.es6))
     .pipe(webpack(webpackOptions(paths.name.main, false)))
+    .pipe(gulp.dest(paths.dest.pack));
+});
+
+gulp.task('config', function () {
+  return gulp.src(path.join(paths.src.main, paths.globs.json))
     .pipe(gulp.dest(paths.dest.pack));
 });
 

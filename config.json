@@ -1,0 +1,6 @@
+{
+  "workers": {
+    "count": 2,
+    "interval": 1
+  }
+}
