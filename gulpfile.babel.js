@@ -26,8 +26,9 @@ const paths = {
 
 function webpackOptions(name, test) {
   return {
+    entry: ['index'],
     externals: {
-      'config': './config'
+      'config': './config.json'
     },
     module: {
       preLoaders: [{

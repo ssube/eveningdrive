@@ -20,4 +20,8 @@ class Step {
   process(data) {
     return data[this._field];
   }
+
+  serialize() {
+    return JSON.stringify(this);
+  }
 }
