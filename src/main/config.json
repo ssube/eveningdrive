@@ -1,0 +1,13 @@
+{
+  "workers": {
+    "count": 2,
+    "interval": 1
+  },
+  "steps": [
+    {
+      "id": "1",
+      "type": "JsonTemplateStep",
+      "template": "{\"data\": \"{{foo}}\"}"
+    }
+  ]
+}

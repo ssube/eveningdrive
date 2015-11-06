@@ -1,6 +1,6 @@
 import EventInfo from './EventInfo';
 
-class Event {
+export default class Event {
   constructor(info, data) {
     this._info = new EventInfo(info);
     this._data = data;

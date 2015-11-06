@@ -1,8 +1,11 @@
-class Step {
+import Log from './Log';
+
+export default class Step {
   constructor(options = {}) {
+    this._field = options.field;
     this._id = options.id;
     this._last = options.last;
-    this._field = options.field;
+    this._logger = new Log();
   }
 
   get id() {

@@ -1,4 +1,4 @@
-class EventInfo {
+export default class EventInfo {
   constructor(options = {}) {
     this._id = options.id;
     this._source = options.source;
