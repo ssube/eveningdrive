@@ -7,15 +7,26 @@
     "count": 1,
     "port": 8080
   },
-  "transform": [
-    {
-      "id": "1",
-      "class": "json",
-      "opts": {
-        "foo": "bar"
-      }
+  "transform": [{
+    "id": 1,
+    "class": "json",
+    "inputs": [],
+    "opts": {
+      "foo": "bar"
     }
-  ],
+  }, {
+    "id": 2,
+    "class": "json",
+    "inputs": [1],
+    "opts": {
+      "bin": "foo"
+    }
+  }, {
+    "id": 3,
+    "class": "logging",
+    "inputs": [1, 2],
+    "opts": {}
+  }],
   "worker": {
     "count": 2,
     "interval": 1

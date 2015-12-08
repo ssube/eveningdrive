@@ -15,6 +15,7 @@ export default class Worker {
   }
 
   constructor(config) {
+    this._config = config;
     this._transforms = config.transform;
     this._queues = config.queues;
     this._stats = config.stats;
@@ -24,14 +25,21 @@ export default class Worker {
     this._queues.forEach(info => {
       const {id, queue, transform} = info;
       logger.info('Listening for events on channel: %s', id);
-      queue.process(event => {
+      queue.process(job => {
+        const event = job.data;
         logger.info('Processing event %s on transform %s.', event.id, transform.id);
         this._stats.increment(`worker.${id}.events`);
-        transform.process(event).then(output => {
-          this.enqueue({
-            id: Date.now(),
-            data: output
-          }, transform.id);
+        return transform.process(event).then(output => {
+          if (output) {
+            logger.info('Processing completed for event %s, enqueueing output.', event.id);
+            return this._config.enqueue({
+              id: Date.now(),
+              data: output
+            }, transform.id);
+          } else {
+            logger.info('Processing completed for event %s, no output received.', event.id);
+            return null;
+          }
         });
       });
     })
@@ -39,17 +47,5 @@ export default class Worker {
 
   close() {
     // nop
-  }
-
-  /**
-   * Add a new event (output from some transform) to the queue.
-   **/
-  enqueue(event, source) {
-    // Find all transforms taking input from the source
-    this._queues.each(info => {
-      if (info.transform.inputs.indexOf(source) > -1) {
-        info.queue.add(event);
-      }
-    });
   }
 }

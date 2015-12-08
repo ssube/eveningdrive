@@ -8,8 +8,9 @@ export default class JsonTransform extends Transform {
   }
 
   process(event) {
-    return Promise.resolve(Object.keys(this._opts).reduce((p, key) => {
-      p[key] = event[this._opts[key]];
-    }, {}));
+    const output = Object.keys(this._opts).reduce((p, key) => {
+      p[key] = event.data[this._opts[key]];
+    }, {});
+    return this.emit(output);
   }
 }

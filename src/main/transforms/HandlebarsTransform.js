@@ -12,7 +12,7 @@ export default class HandlebarsTransform extends Transform {
   process(event) {
     try {
       const render = this._template(event);
-      return Promise.resolve(JSON.parse(render));
+      return this.emit(JSON.parse(render));
     } catch (e) {
       return Promise.reject(e);
     }
