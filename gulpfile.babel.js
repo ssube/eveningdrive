@@ -6,43 +6,35 @@ import webpack from 'webpack-stream';
 const paths = {
   src: {
     base: 'src',
-    main: 'src/main',
-    test: 'src/test',
+    main: 'src/main'
   },
   dest: {
     base: 'target',
-    main: 'target/main',
-    test: 'target/test',
-    pack: 'target/pack',
+    main: 'target/main'
   },
   globs: {
-    es6: '**/*.es6',
-    json: '**/*.json',
+    es6: '**/*.js'
   },
   name: {
-    main: 'main.bundle.js',
+    main: 'main.bundle.js'
   }
-}
+};
 
-function webpackOptions(name, test) {
+function webpackOptions(name) {
   return {
-    entry: ['index'],
-    externals: {
-      'config': './config.json'
-    },
     module: {
       preLoaders: [{
-        test: /\.es6$/,
+        test: /\.js$/,
         include: path.resolve(paths.src.base),
         loader: 'babel-loader',
         query: {
-          optional: ['runtime']
+          options: ['runtime']
         }
       }]
     },
     node: {
       global: true,
-      process: true,
+      process: true
     },
     output: {
       filename: name,
@@ -51,8 +43,7 @@ function webpackOptions(name, test) {
     resolve: {
       extensions: ['', '.es6', '.js'],
       root: path.join(__dirname, paths.src.main)
-    },
-    target: 'node'
+    }
   };
 }
 
@@ -63,12 +54,7 @@ gulp.task('clean', function (done) {
 gulp.task('compile', function () {
   return gulp.src(path.join(paths.src.main, paths.globs.es6))
     .pipe(webpack(webpackOptions(paths.name.main, false)))
-    .pipe(gulp.dest(paths.dest.pack));
-});
-
-gulp.task('config', function () {
-  return gulp.src(path.join(paths.src.main, paths.globs.json))
-    .pipe(gulp.dest(paths.dest.pack));
+    .pipe(gulp.dest(paths.dest.main));
 });
 
 gulp.task('default', ['compile']);

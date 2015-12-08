@@ -2,7 +2,7 @@
   "name": "eveningdrive",
   "version": "0.1.0",
   "description": "Streaming parallel ETL",
-  "main": "target/main/index.js",
+  "main": "main.js",
   "scripts": {
     "test": "gulp test"
   },
@@ -31,9 +31,10 @@
     "gulp": "^3.9.0",
     "rimraf": "^2.4.3",
     "webpack": "^1.12.2",
-    "webpack-stream": "^2.1.1"
-  },
-  "dependencies": {
+    "webpack-stream": "^2.1.1",
+    "bull": "~0.6.0",
+    "restify": "~4.0.3",
+    "bluebird": "~3.0.6",
     "handlebars": "^4.0.4"
   }
 }
