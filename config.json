@@ -7,19 +7,25 @@
     "count": 1,
     "port": 8080
   },
+  "statsd": {
+    "debug": true,
+    "host": "localhost",
+    "port": 8125
+  },
   "transform": [{
     "id": 1,
     "class": "json",
     "inputs": [],
     "opts": {
-      "foo": "bar"
+      "foo": "foo",
+      "fun": "foo"
     }
   }, {
     "id": 2,
-    "class": "json",
+    "class": "template",
     "inputs": [1],
     "opts": {
-      "bin": "foo"
+      "template": "{\"next\": \"{{this.foo}}\"}"
     }
   }, {
     "id": 3,

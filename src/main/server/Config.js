@@ -7,9 +7,9 @@ import JsonTransform from '../transforms/JsonTransform';
 import LoggingTransform from '../transforms/LoggingTransform';
 import HandlebarsTransform from '../transforms/HandlebarsTransform';
 
-//
 const logger = bunyan.createLogger({name: 'Config'});
 
+// TODO: break this class down (it's a connection pool for multiple tools, not config)
 export default class Config {
   static loadFrom(path) {
     const data = require(path);
@@ -30,20 +30,26 @@ export default class Config {
   constructor(data) {
     this._data = data;
 
-    // Create all necessary connections and instances
+    // Create all necessary redis/bull channels
     const redisConnection = this._data.redis;
     this._queues = this.transform.map(transform => {
       const queueName = `transform-${transform.id}`;
       const transformClass = Config.getTransformClass(transform.class);
-      logger.info('Creating queue %s and transform from %s.', queueName, transformClass.name);
-      return {
+      const queue = {
         name: queueName,
         queue: Queue(queueName, redisConnection.port, redisConnection.host),
         transform: new transformClass(transform)
       };
+      logger.info('Creating queue %s and transform from %s.', queueName, transformClass.name, {
+        queue
+      });
+      return queue;
     });
 
-    this._stats = new StatsDClient(this._data.statsd);
+    // Create statsd connection
+    const statsdConnection = this._data.statsd;
+    logger.info('Creating StatsD connection.', {opts: statsdConnection});
+    this._stats = new StatsDClient(statsdConnection);
   }
 
   close() {
@@ -106,6 +112,6 @@ export default class Config {
       logger.info('No transforms for event %s.', event.id);
     }
 
-    return Promise.resolve(sinks.length);
+    return Promise.resolve(sinks.map(sink => sink.transform.id));
   }
 }

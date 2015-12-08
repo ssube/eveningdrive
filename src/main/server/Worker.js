@@ -23,12 +23,12 @@ export default class Worker {
 
   listen() {
     this._queues.forEach(info => {
-      const {id, queue, transform} = info;
-      logger.info('Listening for events on channel: %s', id);
+      const {name, queue, transform} = info;
+      logger.info('Listening for events on channel: %s', name);
       queue.process(job => {
         const event = job.data;
-        logger.info('Processing event %s on transform %s.', event.id, transform.id);
-        this._stats.increment(`worker.${id}.events`);
+        logger.info('Processing event %s through transform %s.', event.id, transform.id);
+        //this._stats.increment(`worker.${id}.events`);
         return transform.process(event).then(output => {
           if (output) {
             logger.info('Processing completed for event %s, enqueueing output.', event.id);
@@ -40,6 +40,9 @@ export default class Worker {
             logger.info('Processing completed for event %s, no output received.', event.id);
             return null;
           }
+        }).catch(err => {
+          logger.info('Process failed for event %s: %s', event.id, err);
+          return null;
         });
       });
     })
