@@ -30,8 +30,18 @@
   }, {
     "id": 3,
     "class": "logging",
-    "inputs": [1, 2],
+    "inputs": [1, 2, 4],
     "opts": {}
+  }, {
+    "id": 4,
+    "class": "request",
+    "inputs": [],
+    "opts": {
+      "host": "www.google.com",
+      "port": 80,
+      "path": "/",
+      "method": "GET"
+    }
   }],
   "worker": {
     "count": 2,

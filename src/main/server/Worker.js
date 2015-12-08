@@ -31,11 +31,11 @@ export default class Worker {
         //this._stats.increment(`worker.${id}.events`);
         return transform.process(event).then(output => {
           if (output) {
-            logger.info('Processing completed for event %s, enqueueing output.', event.id);
-            return this._config.enqueue({
-              id: Date.now(),
-              data: output
-            }, transform.id);
+            logger.info(
+              'Processing completed for event %s, enqueueing output as %s.',
+              event.id, output.id
+            );
+            return this._config.enqueue(output, transform.id);
           } else {
             logger.info('Processing completed for event %s, no output received.', event.id);
             return null;

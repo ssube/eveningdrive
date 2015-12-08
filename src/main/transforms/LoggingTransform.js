@@ -1,5 +1,4 @@
 import bunyan from 'bunyan';
-import Promise from 'bluebird';
 
 import Transform from './Transform';
 

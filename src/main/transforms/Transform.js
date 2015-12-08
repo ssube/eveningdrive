@@ -7,6 +7,7 @@ export default class Transform {
   constructor({id, inputs, opts}) {
     this._id = id;
     this._inputs = inputs;
+    this._logger = bunyan.createLogger({name: `${this.constructor.name}-${this._id}`});
     this._opts = opts;
   }
 

@@ -5,6 +5,7 @@ import StatsDClient from 'statsd-client';
 // Import transforms
 import JsonTransform from '../transforms/JsonTransform';
 import LoggingTransform from '../transforms/LoggingTransform';
+import RequestTransform from '../transforms/RequestTransform';
 import HandlebarsTransform from '../transforms/HandlebarsTransform';
 
 const logger = bunyan.createLogger({name: 'Config'});
@@ -22,6 +23,8 @@ export default class Config {
         return JsonTransform;
       case "logging":
         return LoggingTransform;
+      case "request":
+        return RequestTransform;
       case "template":
         return HandlebarsTransform;
     }
@@ -35,16 +38,19 @@ export default class Config {
     this._queues = this.transform.map(transform => {
       const queueName = `transform-${transform.id}`;
       const transformClass = Config.getTransformClass(transform.class);
-      const queue = {
-        name: queueName,
-        queue: Queue(queueName, redisConnection.port, redisConnection.host),
-        transform: new transformClass(transform)
-      };
-      logger.info('Creating queue %s and transform from %s.', queueName, transformClass.name, {
-        queue
-      });
-      return queue;
-    });
+      if (typeof transformClass !== 'function') {
+        logger.error('Invalid transform class %s for transform %s.', transform.class, transform.id);
+        return null;
+      } else {
+        const queue = {
+          name: queueName,
+          queue: Queue(queueName, redisConnection.port, redisConnection.host),
+          transform: new transformClass(transform)
+        };
+        logger.info('Creating queue %s and transform from %s.', queueName, transformClass.name);
+        return queue;
+      }
+    }).filter(item => item !== null);
 
     // Create statsd connection
     const statsdConnection = this._data.statsd;
