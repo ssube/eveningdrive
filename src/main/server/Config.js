@@ -86,16 +86,12 @@ export default class Config {
     // Collect transforms with this source as an input or explicitly targeted
     const inputSinks = this._queues.filter(info => {
       return info.transform.inputs.some(item => {
-        const result = item == source;
-        logger.info('testing item %s (%s) against source %s (%s): %s', item, typeof item, source, typeof source, result);
-        return result;
+        return item == source;
       });
     });
     const targetSinks = this._queues.filter(info => {
       return targets.some(item => {
-        const result = item == info.transform.id;
-        logger.info('testing item %s (%s) against transform %s (%s): %s', item, typeof item, info.transform.id, typeof info.transform.id, result);
-        return result;
+        return item == info.transform.id;
       });
     });
     const sinks = inputSinks.concat(targetSinks);
