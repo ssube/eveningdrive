@@ -1,8 +1,11 @@
+import bunyan from 'bunyan';
 import Queue from 'bull';
 import StatsDClient from 'statsd-client';
 
 // Import transforms
-import JsonTransform from './transforms/JsonTransform';
+import JsonTransform from '../transforms/JsonTransform';
+
+const logger = bunyan.createLogger({name: 'Config'});
 
 export default class Config {
   static loadFrom(path) {
@@ -21,24 +24,26 @@ export default class Config {
     this._data = data;
 
     // Create all necessary connections and instances
+    const redisConnection = this._data.redis;
     this._queues = this.transform.map(transform => {
       const queueName = `transform-${transform.id}`;
       const transformClass = Config.getTransformClass(transform.class);
+      logger.info('Creating queue %s and transform from %s.', queueName, transformClass.name);
       return {
         name: queueName,
-        queue: Queue(queueName, port, host),
+        queue: Queue(queueName, redisConnection.port, redisConnection.host),
         transform: new transformClass(transform.opts)
       };
     });
 
-    this._stats = new StatsDClient(this._data.stats);
+    this._stats = new StatsDClient(this._data.statsd);
   }
 
   close() {
-    this._queues.each(info => {
+    this.queues.forEach(info => {
       info.queue.close();
     });
-    this._stats.close();
+    this.stats.close();
   }
 
   get worker() {
@@ -47,6 +52,10 @@ export default class Config {
 
   get server() {
     return this._data.server;
+  }
+
+  get redis() {
+    return this._data.redis;
   }
 
   get transform() {

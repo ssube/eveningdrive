@@ -1,4 +1,8 @@
+import bunyan from 'bunyan';
+import cluster from 'cluster';
 import Promise from 'bluebird';
+
+const logger = bunyan.createLogger({name: 'Manager'});
 
 export default class Manager {
   static start(config) {
@@ -22,11 +26,11 @@ export default class Manager {
       onCancel(() => {
         children.map(child => {
           if (child.isConnected() && !child.isDead()) {
-            logger.info('Interrupting child %i.', child.id);
+            logger.info('Interrupting child %s.', child.id);
             child.kill('SIGINT');
           } else {
             logger.warn(
-              'Unable to interrupt child %i (may be disconnected or already dead).',
+              'Unable to interrupt child %s (may be disconnected or already dead).',
               child.id
             );
           }

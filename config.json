@@ -1,13 +1,23 @@
 {
-  "workers": {
-    "count": 2,
-    "interval": 1
+  "redis": {
+    "host": "localhost",
+    "port": 6379
   },
-  "steps": [
+  "server": {
+    "count": 1,
+    "port": 8080
+  },
+  "transform": [
     {
       "id": "1",
-      "type": "JsonTemplateStep",
-      "template": "{\"data\": \"{{foo}}\"}"
+      "class": "json",
+      "opts": {
+        "foo": "bar"
+      }
     }
-  ]
+  ],
+  "worker": {
+    "count": 2,
+    "interval": 1
+  }
 }

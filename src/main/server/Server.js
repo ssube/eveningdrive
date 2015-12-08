@@ -1,6 +1,8 @@
-import restify from 'restify';
-import logger from 'winston';
+import bunyan from 'bunyan';
+import express from 'express';
 import Promise from 'bluebird';
+
+const logger = bunyan.createLogger({name: 'Server'});
 
 export default class Server {
   static start(config) {
@@ -15,24 +17,24 @@ export default class Server {
 
   constructor(config) {
     this._port = config.server.port || 8080;
-    this._server = restify.createServer();
+    this._app = express();
     this._stats = config.stats;
     this.createRoutes();
   }
 
   createRoutes() {
-    this._server.get('/', (req, res, next) => {
+    this._app.get('/', (req, res) => {
       this._stats.increment('server.requests');
       res.send(200, {
         'content': 'Hello World!'
       });
-      return next();
     });
   }
 
   listen() {
-    this._server.listen(this._port, () => {
-      logger.info('Server listening on port %i.', this._port);
+    this._server = this._app.listen(this._port, () => {
+      const address = this._server.address();
+      logger.info('Server listening on %s:%s.', address.address, address.port);
     });
   }
 

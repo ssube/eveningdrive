@@ -1,5 +1,7 @@
-import logger from 'winston';
+import bunyan from 'bunyan';
 import Promise from 'bluebird';
+
+const logger = bunyan.createLogger({name: 'Worker'});
 
 export default class Worker {
   static start(config) {
@@ -13,15 +15,13 @@ export default class Worker {
   }
 
   constructor(config) {
-    const {host, port} = config.worker.queue;
-
     this._transforms = config.transform;
     this._queues = config.queues;
     this._stats = config.stats;
   }
 
   listen() {
-    this._queues.each(info => {
+    this._queues.forEach(info => {
       const {id, queue, transform} = info;
       logger.info('Listening for events on channel: %s', id);
       queue.process(event => {

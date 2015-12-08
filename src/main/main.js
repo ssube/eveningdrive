@@ -2,7 +2,8 @@
  * Entry point to launch the server and fork out sub processes.
  */
 
-import logger from 'winston';
+import bunyan from 'bunyan';
+import cluster from 'cluster';
 import Promise from 'bluebird';
 
 import Config from './server/Config';
@@ -11,6 +12,7 @@ import Server from './server/Server';
 import Worker from './server/Worker';
 
 // Configure libraries
+const logger = bunyan.createLogger({name: 'main'});
 Promise.config({
   warnings: true,
   longStackTraces: true,
@@ -29,8 +31,8 @@ if (cluster.isMaster) {
   logger.info('Launching manager process.');
   serviceType = Manager;
 } else {
-  let {role: WORKER_ROLE, id: WORKER_ID} = process.env;
-  logger.info('Launching worker process %i in role: %s', id, role);
+  let {WORKER_ROLE: role, WORKER_ID: id} = process.env;
+  logger.info('Launching worker process %s in role: %s', id, role);
   if (role === 'worker') {
     serviceType = Worker;
   } else if (role === 'server') {

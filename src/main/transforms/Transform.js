@@ -1,5 +1,7 @@
+import bunyan from 'bunyan';
 import Promise from 'bluebird';
-import logger from 'winston';
+
+const logger = bunyan.createLogger({name: 'Transform'});
 
 export default class Transform {
   constructor(opts) {
