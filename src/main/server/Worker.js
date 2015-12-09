@@ -28,25 +28,25 @@ export default class Worker {
     this._queues.listen((queue, job) => {
       const source = queue.id;
       const event = job.data;
-      logger.info('Received event %s on channel %s.', event.id, source);
-      this._stats.increment(`events.${source}.incoming`);
+      logger.info('Received event on channel %s.', source);
+      this._stats.increment(`transform.${source}.events_sent`);
 
       const transform = this._transforms[source];
-      logger.debug('Sending event %s to transform %s.', event.id, transform.id);
+      logger.debug('Sending event to transform %s.', transform.id);
 
       try {
-        return transform.process(event).then(output => {
+        return transform.process(event, job.jobId).then(output => {
           if (output) {
-            logger.debug('Received output event %s from event %s.', output.id, event.id);
-            this._stats.increment(`events.${source}.outgoing`);
+            logger.debug('Received output event.');
+            this._stats.increment(`transform.${source}.events_rcvd`);
             return this._queues.add(output, source);
           } else {
-            logger.debug('Received no output from event %s.', event.id);
+            logger.debug('Received no output event.');
             return Promise.resolve();
           }
         });
       } catch (e) {
-        logger.warn('Error processing transform on event %s.', event.id, e);
+        logger.warn('Error processing transform on event.', e);
         return Promise.resolve();
       }
     });

@@ -31,8 +31,8 @@ export default class QueuePool {
 
   listen(cb) {
     this._channels.forEach(channel => channel.queue.listen(job => {
-      logger.info('Received job %s for channel %s.', job.id, channel.id);
-      return cb(channel, job);
+      logger.info('Received job %s for channel %s.', job.jobId, channel.id);
+      return cb(channel, job.data);
     }));
   }
 
@@ -45,7 +45,7 @@ export default class QueuePool {
   }
 
   add(event, source, targets = []) {
-    logger.info('Adding event %s from %s.', event.id, source, {targets});
+    logger.info('Adding event from %s.', source, {targets});
 
     const inputSinks = Object.keys(this._links).filter(link => {
       const sources = this._links[link];
@@ -57,7 +57,7 @@ export default class QueuePool {
     const sinks = targets.concat(inputSinks);
 
     if (sinks.length) {
-      logger.info('Sending event %s to %s channels.', event.id, sinks.length, {sinks});
+      logger.info('Sending event to %s channels.', sinks.length, {sinks});
 
       return Promise.all(sinks.map(sink => {
         return this.getChannel(sink);
@@ -66,7 +66,7 @@ export default class QueuePool {
         return channel.queue.add(event);
       }));
     } else {
-      logger.info('No channels found for event %s.', event.id);
+      logger.info('No channels found for event.');
       return Promise.resolve();
     }
   }

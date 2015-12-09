@@ -41,7 +41,7 @@ export default class Server {
         data: req.body
       };
 
-      logger.info('Adding webhook event %s for transform %s.', event.id, req.params.id);
+      logger.info('Adding webhook event for transform %s.', req.params.id);
       this._queues.add(event, 0, [req.params.id]).then(() => {
         res.status(201).send({
           'status': 'queued event',

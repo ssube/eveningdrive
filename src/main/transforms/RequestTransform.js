@@ -3,25 +3,26 @@ import bunyan from 'bunyan';
 import handlebars from 'handlebars';
 
 import Transform from './Transform';
+import TemplateString from '../server/TemplateString';
 
 export default class RequestTransform extends Transform {
   constructor(opts) {
     super(opts);
-    this._host = handlebars.compile(this._opts.host);
-    this._port = this._opts.port || 80;
-    this._path = handlebars.compile(this._opts.path);
-    this._method = this._opts.method;
+    this._host = new TemplateString(this._opts.host);
+    this._port = new TemplateString(this._opts.port || '80');
+    this._path = new TemplateString(this._opts.path);
+    this._method = new TemplateString(this._opts.method);
   }
 
-  process(event) {
+  process(event, eventId) {
     return new Promise((res, rej) => {
       const options = {
-        hostname: this._host(event.data),
-        method: this._method,
-        port: this._port,
-        path: this._path(event.data)
+        hostname: this._host.render(event),
+        method: this._method.render(event),
+        port: this._port.render(event),
+        path: this._path.render(event)
       }
-      this._logger.debug('Making request while processing event %s.', event.id, options);
+      this._logger.debug('Making request while processing event %s.', eventId, options);
 
       const req = http.request(options, (response) => {
         const data = [];
@@ -30,7 +31,7 @@ export default class RequestTransform extends Transform {
         });
         response.on('end', () => {
           const body = data.join('');
-          this._logger.debug('Received response while processing event %s.', event.id, body);
+          this._logger.debug('Received response while processing event.', eventId, body);
           res(this.emit(body));
         });
       });

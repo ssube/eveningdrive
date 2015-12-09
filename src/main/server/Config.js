@@ -34,4 +34,8 @@ export default class Config {
   get transform() {
     return this._data.transform;
   }
+
+  get params() {
+    return this._data.params;
+  }
 }

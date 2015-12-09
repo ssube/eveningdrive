@@ -10,6 +10,6 @@ export default class LoggingTransform extends Transform {
 
   process(event) {
     this._logger.info('Processing event.', {event});
-    return this.emit(event.data);
+    return this.emit(event);
   }
 }
