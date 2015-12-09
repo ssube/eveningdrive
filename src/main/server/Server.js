@@ -33,8 +33,23 @@ export default class Server {
 
     this._app.get('/transform', (req, res) => {
       this._stats.increment('server.endpoint.transform');
+
       res.status(200).send(this._config.transform);
     });
+
+    this._app.get('/transform/:id', (req, res) => {
+      const transformId = req.params.id;
+
+      this._stats.increment(`server.endpoint.transform.${transformId}`);
+      logger.debug('Getting transform %s.', transformId);
+
+      const transform = this._config.transform.filter(trans => trans.id == transformId);
+      if (transform.length) {
+        res.status(200).send(transform);
+      } else {
+        res.status(404).send([]);
+      }
+    })
 
     this._app.post('/event', (req, res) => {
       const transform = req.query.transform;
