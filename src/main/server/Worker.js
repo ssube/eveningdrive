@@ -25,11 +25,7 @@ export default class Worker {
       return p;
     }, {});
 
-    this._queues = new QueuePool({
-      host: config.redis.host,
-      port: config.redis.port,
-      transforms: config.transform
-    });
+    this._queues = new QueuePool(config);
   }
 
   listen() {

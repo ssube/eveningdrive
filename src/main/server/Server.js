@@ -24,11 +24,7 @@ export default class Server {
 
     this._config = config;
     this._port = config.server.port || 8080;
-    this._queues = new QueuePool({
-      host: config.redis.host,
-      port: config.redis.port,
-      transforms: config.transform
-    });
+    this._queues = new QueuePool(config);
     this.createRoutes();
   }
 

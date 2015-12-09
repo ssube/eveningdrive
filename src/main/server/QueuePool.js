@@ -10,7 +10,11 @@ export default class QueuePool {
    * @param links A hash where keys are the IDs of each channel and the value is an array
    *              of input channels (sink:[sources])
    **/
-  constructor({host, port, prefix = 'transform', transforms}) {
+  constructor(config) {
+    const prefix = 'transform';
+    let {host, port} = config.redis;
+    let transforms = config.transform;
+
     this._links = transforms.reduce((p, transform) => {
       p[transform.id] = transform.inputs;
       return p;
