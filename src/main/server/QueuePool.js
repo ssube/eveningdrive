@@ -62,6 +62,7 @@ export default class QueuePool {
       }).reduce((p, c) => p.concat(c), []).map(channel => {
         return channel.queue.add(event).then(job => {
           logger.info('Created event %s.', job.jobId);
+          return job.jobId;
         });
       }));
     } else {

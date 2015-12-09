@@ -32,20 +32,21 @@ export default class Server {
     });
 
     this._app.get('/transform', (req, res) => {
+      this._stats.increment('server.endpoint.transform');
       res.status(200).send(this._config.transform);
     });
 
-    this._app.post('/event/transform/:id', (req, res) => {
-      const event = {
-        id: Date.now(),
-        data: req.body
-      };
+    this._app.post('/event', (req, res) => {
+      const transform = req.query.transform;
 
-      logger.info('Adding webhook event for transform %s.', req.params.id);
-      this._queues.add(event, 0, [req.params.id]).then(() => {
+      this._stats.increment('server.endpoint.event.create');
+      this._stats.increment(`server.endpoint.event.create.${transform}`);
+      logger.info('Creating webhook event for transform %s.', transform);
+
+      this._queues.add(req.body, 0, [transform]).then(ids => {
         res.status(201).send({
           'status': 'queued event',
-          'event': event
+          'events': ids
         });
       });
     });
