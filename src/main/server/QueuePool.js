@@ -67,7 +67,7 @@ export default class QueuePool {
       }));
     } else {
       logger.info('No destination found, skipping event.');
-      return Promise.resolve();
+      return Promise.resolve([]);
     }
   }
 }
