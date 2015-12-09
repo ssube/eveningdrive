@@ -2,6 +2,8 @@ import bunyan from 'bunyan';
 import handlebars from 'handlebars';
 import jsonpath from 'JSONPath';
 
+const logger = bunyan.createLogger({name: 'TemplateString'});
+
 export default class TemplateString {
   /**
    * Works around a problem in handlebars, where helpers have to be registered
@@ -9,11 +11,14 @@ export default class TemplateString {
    **/
   static registerHelpers(config) {
     handlebars.registerHelper('path', (path, data) => {
-      return jsonpath.eval(data, path);
+      logger.debug('Executing template path helper.', path, data);
+      return JSON.stringify(jsonpath.eval(data, path));
     });
 
     handlebars.registerHelper('conf', (key) => {
-      return config.params[key];
+      const value = config.params[key];
+      logger.debug('Executing template conf helper.', key, value);
+      return value;
     });
   }
 

@@ -8,12 +8,12 @@ export default class TemplateTransform extends Transform {
   }
 
   process(event) {
+    const render = this._template.render(event);
     try {
-      const render = this._template.render(event);
       const output = JSON.parse(render);
       return this.emit(output);
     } catch (e) {
-      this._logger.warn('Error rendering or parsing event: %s', e);
+      this._logger.warn('Error rendering or parsing event: %s', e, render);
       return Promise.reject(e);
     }
   }

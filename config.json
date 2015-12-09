@@ -14,13 +14,27 @@
   },
   "transform": [{
     "id": 1,
-    "class": "noop",
+    "class": "path",
     "inputs": [],
+    "opts": {
+      "foo": "$.foo",
+      "bin": "$.foo"
+    }
+  }, {
+    "id": 2,
+    "class": "logging",
+    "inputs": [1, 3],
     "opts": {}
+  }, {
+    "id": 3,
+    "class": "template",
+    "inputs": [1],
+    "opts": {
+      "template": "{\"old-root\": \"{{bin}}\", \"config\": \"{{conf \"tool\"}}\"}"
+    }
   }],
   "worker": {
-    "count": 1,
-    "interval": 1
+    "count": 8
   },
   "params": {
     "tool": "eveningdriver",

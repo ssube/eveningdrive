@@ -29,7 +29,7 @@ export default class Worker {
       const source = queue.id;
       const event = job.data;
       logger.info('Received event %s on channel %s.', job.jobId, source);
-      this._stats.increment(`transform.${source}.events_sent`);
+      this._stats.increment(`transform.${source}.events_rcvd`);
 
       const transform = this._transforms[source];
       logger.debug('Sending event %s to transform %s.', job.jobId, transform.id);
@@ -38,7 +38,7 @@ export default class Worker {
         return transform.process(event, job.jobId).then(output => {
           if (output) {
             logger.debug('Received output event.');
-            this._stats.increment(`transform.${source}.events_rcvd`);
+            this._stats.increment(`transform.${source}.events_sent`);
             return this._queues.add(output, source);
           } else {
             logger.debug('Received no output event.');
