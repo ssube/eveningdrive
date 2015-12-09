@@ -46,8 +46,7 @@ if (cluster.isMaster) {
 let service = serviceType.start(config);
 
 // Handle Ctrl-C or system kills
-process.on('SIGINT', () => {
+/*process.on('SIGINT', () => {
   logger.info('Caught SIGINT, terminating service.');
   service.cancel();
-  config.close();
-});
+});*/

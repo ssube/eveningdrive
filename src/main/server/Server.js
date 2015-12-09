@@ -3,6 +3,8 @@ import express from 'express';
 import Promise from 'bluebird';
 import bodyParser from 'body-parser';
 
+import QueuePool from './QueuePool';
+
 const logger = bunyan.createLogger({name: 'Server'});
 
 export default class Server {
@@ -17,17 +19,21 @@ export default class Server {
   }
 
   constructor(config) {
-    this._config = config;
-    this._port = config.server.port || 8080;
     this._app = express();
     this._app.use(bodyParser.json());
-    this._stats = config.stats;
+
+    this._config = config;
+    this._port = config.server.port || 8080;
+    this._queues = new QueuePool({
+      host: config.redis.host,
+      port: config.redis.port,
+      transforms: config.transform
+    });
     this.createRoutes();
   }
 
   createRoutes() {
     this._app.get('/', (req, res) => {
-      this._stats.increment('server.requests');
       res.status(200).send({
         'content': 'Hello World!'
       });
@@ -38,16 +44,16 @@ export default class Server {
     });
 
     this._app.post('/event/transform/:id', (req, res) => {
-      logger.info('Enqueueing webhook event for transform %s.', req.params.id);
       const event = {
         id: Date.now(),
         data: req.body
       };
-      this._config.enqueue(event, 0, [req.params.id]).then((sinks) => {
+
+      logger.info('Adding webhook event %s for transform %s.', event.id, req.params.id);
+      this._queues.add(event, 0, [req.params.id]).then(() => {
         res.status(201).send({
           'status': 'queued event',
-          'event': event,
-          'sinks': sinks
+          'event': event
         });
       });
     });

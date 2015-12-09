@@ -1,6 +1,9 @@
 import bunyan from 'bunyan';
 import Promise from 'bluebird';
 
+import QueuePool from './QueuePool';
+import Transform from '../transforms/Transform';
+
 const logger = bunyan.createLogger({name: 'Worker'});
 
 export default class Worker {
@@ -10,45 +13,52 @@ export default class Worker {
       worker.listen();
       onCancel(() => {
         worker.close();
-      })
+      });
     });
   }
 
   constructor(config) {
     this._config = config;
-    this._transforms = config.transform;
-    this._queues = config.queues;
-    this._stats = config.stats;
+    this._transforms = config.transform.reduce((p, transformOpts) => {
+      const transform = Transform.create(transformOpts.class, transformOpts);
+      p[transform.id] = transform;
+      return p;
+    }, {});
+
+    this._queues = new QueuePool({
+      host: config.redis.host,
+      port: config.redis.port,
+      transforms: config.transform
+    });
   }
 
   listen() {
-    this._queues.forEach(info => {
-      const {name, queue, transform} = info;
-      logger.info('Listening for events on channel: %s', name);
-      queue.process(job => {
-        const event = job.data;
-        logger.info('Processing event %s through transform %s.', event.id, transform.id);
-        //this._stats.increment(`worker.${id}.events`);
+    this._queues.listen((queue, job) => {
+      const source = queue.id;
+      const event = job.data;
+      logger.info('Received event %s on channel %s.', event.id, source);
+
+      const transform = this._transforms[source];
+      logger.debug('Sending event %s to transform %s.', event.id, transform.id);
+
+      try {
         return transform.process(event).then(output => {
           if (output) {
-            logger.info(
-              'Processing completed for event %s, enqueueing output as %s.',
-              event.id, output.id
-            );
-            return this._config.enqueue(output, transform.id);
+            logger.debug('Received output event %s from event %s.', output.id, event.id);
+            return this._queues.add(output, source);
           } else {
-            logger.info('Processing completed for event %s, no output received.', event.id);
-            return null;
+            logger.debug('Received no output from event %s.', event.id);
+            return Promise.resolve();
           }
-        }).catch(err => {
-          logger.info('Process failed for event %s: %s', event.id, err);
-          return null;
         });
-      });
-    })
+      } catch (e) {
+        logger.warn('Error processing transform on event %s.', event.id, e);
+        return Promise.resolve();
+      }
+    });
   }
 
   close() {
-    // nop
+    this._queues.close();
   }
 }

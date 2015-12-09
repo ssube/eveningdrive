@@ -11,10 +11,12 @@ export default class JsonTransform extends Transform {
   }
 
   process(event) {
+    this._logger.info('Received event %s.', event.id);
     const output = Object.keys(this._opts).reduce((p, key) => {
       p[key] = jsonpath.eval(event.data, this._opts[key]);
+      return p;
     }, {});
-    this._logger.debug('Processed event to: %s', output);
+    this._logger.info('Processed event %s to: %s', event.id, output);
     return this.emit(output);
   }
 }
