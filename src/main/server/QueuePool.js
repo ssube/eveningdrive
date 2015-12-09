@@ -15,6 +15,8 @@ export default class QueuePool {
     let {host, port} = config.redis;
     let transforms = config.transform;
 
+    logger.info('Creating queue pool.');
+
     this._links = transforms.reduce((p, transform) => {
       p[transform.id] = transform.inputs;
       return p;

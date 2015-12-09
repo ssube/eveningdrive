@@ -4,6 +4,7 @@ import Promise from 'bluebird';
 import bodyParser from 'body-parser';
 
 import QueuePool from './QueuePool';
+import Stats from './Stats';
 
 const logger = bunyan.createLogger({name: 'Server'});
 
@@ -25,6 +26,7 @@ export default class Server {
     this._config = config;
     this._port = config.server.port || 8080;
     this._queues = new QueuePool(config);
+    this._stats = new Stats(config);
     this.createRoutes();
   }
 

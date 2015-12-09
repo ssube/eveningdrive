@@ -27,6 +27,10 @@ export default class Config {
     return this._data.redis;
   }
 
+  get statsd() {
+    return this._data.statsd;
+  }
+
   get transform() {
     return this._data.transform;
   }

@@ -3,6 +3,7 @@ import Promise from 'bluebird';
 
 import QueuePool from './QueuePool';
 import Transform from '../transforms/Transform';
+import Stats from './Stats';
 
 const logger = bunyan.createLogger({name: 'Worker'});
 
@@ -26,6 +27,7 @@ export default class Worker {
     }, {});
 
     this._queues = new QueuePool(config);
+    this._stats = new Stats(config);
   }
 
   listen() {
@@ -33,6 +35,7 @@ export default class Worker {
       const source = queue.id;
       const event = job.data;
       logger.info('Received event %s on channel %s.', event.id, source);
+      this._stats.increment(`events.${source}.incoming`);
 
       const transform = this._transforms[source];
       logger.debug('Sending event %s to transform %s.', event.id, transform.id);
@@ -41,6 +44,7 @@ export default class Worker {
         return transform.process(event).then(output => {
           if (output) {
             logger.debug('Received output event %s from event %s.', output.id, event.id);
+            this._stats.increment(`events.${source}.outgoing`);
             return this._queues.add(output, source);
           } else {
             logger.debug('Received no output from event %s.', event.id);

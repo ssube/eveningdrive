@@ -32,12 +32,13 @@
     "rimraf": "^2.4.3"
   },
   "dependencies": {
-    "body-parser": "^1.14.1",
+    "JSONPath": "^0.10.0",
     "bluebird": "~3.0.6",
+    "body-parser": "^1.14.1",
     "bull": "~0.6.0",
     "bunyan": "^1.5.1",
     "express": "^4.13.3",
-    "JSONPath": "^0.10.0",
-    "handlebars": "^4.0.4"
+    "handlebars": "^4.0.4",
+    "statsd-client": "^0.2.1"
   }
 }
