@@ -14,32 +14,12 @@
   },
   "transform": [{
     "id": 1,
-    "class": "path",
+    "class": "noop",
     "inputs": [],
-    "opts": {
-      "foo": "foo",
-      "fun": "foo"
-    }
-  }, {
-    "id": 2,
-    "class": "template",
-    "inputs": [1],
-    "opts": {
-      "template": "{\"next\": \"{{this.foo}}\"}"
-    }
-  }, {
-    "id": 4,
-    "class": "request",
-    "inputs": [],
-    "opts": {
-      "host": "www.google.com",
-      "port": "80",
-      "path": "/",
-      "method": "GET"
-    }
+    "opts": {}
   }],
   "worker": {
-    "count": 2,
+    "count": 1,
     "interval": 1
   },
   "params": {

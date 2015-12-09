@@ -9,6 +9,9 @@ export default class Transform {
       case "logging":
         const LoggingTransform = require('./LoggingTransform').default;
         return new LoggingTransform(opts);
+      case "noop":
+        const NoopTransform = require('./NoopTransform').default;
+        return new NoopTransform(opts);
       case "path":
         const PathTransform = require('./PathTransform').default;
         return new PathTransform(opts);
