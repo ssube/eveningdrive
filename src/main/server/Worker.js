@@ -28,11 +28,11 @@ export default class Worker {
     this._queues.listen((queue, job) => {
       const source = queue.id;
       const event = job.data;
-      logger.info('Received event on channel %s.', source);
+      logger.info('Received event %s on channel %s.', job.jobId, source);
       this._stats.increment(`transform.${source}.events_sent`);
 
       const transform = this._transforms[source];
-      logger.debug('Sending event to transform %s.', transform.id);
+      logger.debug('Sending event %s to transform %s.', job.jobId, transform.id);
 
       try {
         return transform.process(event, job.jobId).then(output => {

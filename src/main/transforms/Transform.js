@@ -6,18 +6,18 @@ const logger = bunyan.createLogger({name: 'Transform'});
 export default class Transform {
   static create(type, opts) {
     switch (type) {
-      case "json":
-        const JsonTransform = require('./JsonTransform').default;
-        return new JsonTransform(opts);
       case "logging":
         const LoggingTransform = require('./LoggingTransform').default;
         return new LoggingTransform(opts);
+      case "path":
+        const PathTransform = require('./PathTransform').default;
+        return new PathTransform(opts);
       case "request":
         const RequestTransform = require('./RequestTransform').default;
         return new RequestTransform(opts);
       case "template":
-        const HandlebarsTransform = require('./HandlebarsTransform').default;
-        return new HandlebarsTransform(opts);
+        const TemplateTransform = require('./TemplateTransform').default;
+        return new TemplateTransform(opts);
       default:
         logger.warn('Creating unknown transform type %s for transform %s.', type, opts.id);
         return new Transform(opts);
@@ -40,11 +40,13 @@ export default class Transform {
   }
 
   emit(data) {
-    return Promise.resolve({id: Date.now(), data});
+    return Promise.resolve(data);
   }
 
-  process(event) {
-    logger.warn('Processing event from base transform interface (no processing will occur).');
+  process(event, eventId) {
+    logger.warn(
+      'Processing event %s from base transform interface (no processing will occur).', eventId
+    );
     return Promise.resolve();
   }
 }

@@ -1,7 +1,7 @@
 import Transform from './Transform';
 import TemplateString from '../server/TemplateString';
 
-export default class HandlebarsTransform extends Transform {
+export default class TemplateTransform extends Transform {
   constructor(opts) {
     super(opts);
     this._template = new TemplateString(this._opts.template);

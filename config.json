@@ -14,7 +14,7 @@
   },
   "transform": [{
     "id": 1,
-    "class": "json",
+    "class": "path",
     "inputs": [],
     "opts": {
       "foo": "foo",

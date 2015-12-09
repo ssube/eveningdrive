@@ -31,8 +31,8 @@ export default class QueuePool {
 
   listen(cb) {
     this._channels.forEach(channel => channel.queue.listen(job => {
-      logger.info('Received job %s for channel %s.', job.jobId, channel.id);
-      return cb(channel, job.data);
+      logger.info('Received event %s for transform %s.', job.jobId, channel.id);
+      return cb(channel, job);
     }));
   }
 
@@ -45,7 +45,7 @@ export default class QueuePool {
   }
 
   add(event, source, targets = []) {
-    logger.info('Adding event from %s.', source, {targets});
+    logger.info('Creating event from %s.', source, {targets});
 
     const inputSinks = Object.keys(this._links).filter(link => {
       const sources = this._links[link];
@@ -57,16 +57,15 @@ export default class QueuePool {
     const sinks = targets.concat(inputSinks);
 
     if (sinks.length) {
-      logger.info('Sending event to %s channels.', sinks.length, {sinks});
-
       return Promise.all(sinks.map(sink => {
         return this.getChannel(sink);
       }).reduce((p, c) => p.concat(c), []).map(channel => {
-        logger.info('Forwarding event to channel %s.', channel.id, typeof channel.queue.add);
-        return channel.queue.add(event);
+        return channel.queue.add(event).then(job => {
+          logger.info('Created event %s.', job.jobId);
+        });
       }));
     } else {
-      logger.info('No channels found for event.');
+      logger.info('No destination found, skipping event.');
       return Promise.resolve();
     }
   }
