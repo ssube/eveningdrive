@@ -13,6 +13,10 @@ export default class Stats {
     });
   }
 
+  close() {
+    this._statsd.close();
+  }
+
   increment(name) {
     logger.info('Incrementing %s.', name);
     this._statsd.increment(name);

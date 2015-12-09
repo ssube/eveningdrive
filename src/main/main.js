@@ -13,11 +13,6 @@ import Worker from './server/Worker';
 
 // Configure libraries
 const logger = bunyan.createLogger({name: 'main'});
-Promise.config({
-  warnings: true,
-  longStackTraces: true,
-  cancellation: true
-});
 
 // Load config
 const configName = process.env['ED_CONFIG'] || './config.json';
@@ -44,9 +39,10 @@ if (cluster.isMaster) {
 
 // Launch
 let service = serviceType.start(config);
+service.listen();
 
 // Handle Ctrl-C or system kills
 /*process.on('SIGINT', () => {
   logger.info('Caught SIGINT, terminating service.');
-  service.cancel();
+  service.close();
 });*/

@@ -9,13 +9,7 @@ const logger = bunyan.createLogger({name: 'Worker'});
 
 export default class Worker {
   static start(config) {
-    return new Promise((res, rej, onCancel) => {
-      const worker = new Worker(config);
-      worker.listen();
-      onCancel(() => {
-        worker.close();
-      });
-    });
+    return new Worker(config);
   }
 
   constructor(config) {
@@ -60,5 +54,6 @@ export default class Worker {
 
   close() {
     this._queues.close();
+    this._stats.close();
   }
 }

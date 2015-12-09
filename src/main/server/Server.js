@@ -10,13 +10,7 @@ const logger = bunyan.createLogger({name: 'Server'});
 
 export default class Server {
   static start(config) {
-    return new Promise((res, rej, onCancel) => {
-      let server = new Server(config);
-      server.listen();
-      onCancel(() => {
-        server.close();
-      });
-    });
+    return new Server(config);
   }
 
   constructor(config) {
