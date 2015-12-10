@@ -13,13 +13,22 @@ export default class Stats {
     });
   }
 
+  /**
+   * Get the underlying stats client.
+   * You should not rely on the type of this, only that it can be used
+   * as a middleware for express.
+   **/
+  get client() {
+    return this._statsd;
+  }
+
   close() {
     this._statsd.close();
   }
 
-  increment(name) {
-    logger.info('Incrementing %s.', name);
-    this._statsd.increment(name);
+  counter(name, value = 1) {
+    logger.info('Updating counter %s by %s.', name, value);
+    this._statsd.counter(name, value);
   }
 
   gauge(name, value) {

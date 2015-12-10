@@ -14,13 +14,14 @@ export default class Server {
   }
 
   constructor(config) {
-    this._app = express();
-    this._app.use(bodyParser.json());
-
     this._config = config;
     this._port = config.server.port || 8080;
     this._queues = new QueuePool(config);
     this._stats = new Stats(config);
+
+    this._app = express();
+    this._app.use(this._stats.client.helpers.getExpressMiddleware('server.global'));
+    this._app.use(bodyParser.json());
     this.createRoutes();
   }
 
@@ -32,7 +33,7 @@ export default class Server {
     });
 
     this._app.get('/transform', (req, res) => {
-      this._stats.increment('server.endpoint.transform');
+      this._stats.counter('server.endpoint.transform');
 
       res.status(200).send(this._config.transform);
     });
@@ -40,7 +41,7 @@ export default class Server {
     this._app.get('/transform/:id', (req, res) => {
       const transformId = req.params.id;
 
-      this._stats.increment(`server.endpoint.transform.${transformId}`);
+      this._stats.counter(`server.endpoint.transform.${transformId}`);
       logger.debug('Getting transform %s.', transformId);
 
       const transform = this._config.transform.filter(trans => trans.id == transformId);
@@ -54,8 +55,7 @@ export default class Server {
     this._app.post('/event', (req, res) => {
       const transform = req.query.transform;
 
-      this._stats.increment('server.endpoint.event.create');
-      this._stats.increment(`server.endpoint.event.create.${transform}`);
+      this._stats.counter(`server.endpoint.event.create.${transform}`);
       logger.info('Creating webhook event for transform %s.', transform);
 
       this._queues.add(req.body, 0, [transform]).then(ids => {

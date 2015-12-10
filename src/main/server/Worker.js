@@ -15,7 +15,7 @@ export default class Worker {
   constructor(config) {
     this._config = config;
     this._transforms = config.transform.reduce((p, transformOpts) => {
-      const transform = Transform.create(transformOpts.class, transformOpts);
+      const transform = Transform.create(transformOpts.class, transformOpts, config);
       p[transform.id] = transform;
       return p;
     }, {});
@@ -29,7 +29,7 @@ export default class Worker {
       const source = queue.id;
       const event = job.data;
       logger.info('Received event %s on channel %s.', job.jobId, source);
-      this._stats.increment(`transform.${source}.events_rcvd`);
+      this._stats.counter(`transform.${source}.events_rcvd`);
 
       const transform = this._transforms[source];
       logger.debug('Sending event %s to transform %s.', job.jobId, transform.id);
@@ -38,7 +38,7 @@ export default class Worker {
         return transform.process(event, job.jobId).then(output => {
           if (output) {
             logger.debug('Received output event.');
-            this._stats.increment(`transform.${source}.events_sent`);
+            this._stats.counter(`transform.${source}.events_sent`);
             return this._queues.add(output, source);
           } else {
             logger.debug('Received no output event.');
@@ -53,6 +53,10 @@ export default class Worker {
   }
 
   close() {
+    Object.keys(this._transforms).forEach(key => {
+      const transform = this._transforms[key];
+      transform.close();
+    });
     this._queues.close();
     this._stats.close();
   }

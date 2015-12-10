@@ -4,27 +4,33 @@ import Promise from 'bluebird';
 const logger = bunyan.createLogger({name: 'Transform'});
 
 export default class Transform {
-  static create(type, opts) {
+  static create(type, opts, config) {
+    let constructor;
     switch (type) {
-      case "logging":
-        const LoggingTransform = require('./LoggingTransform').default;
-        return new LoggingTransform(opts);
-      case "noop":
-        const NoopTransform = require('./NoopTransform').default;
-        return new NoopTransform(opts);
-      case "path":
-        const PathTransform = require('./PathTransform').default;
-        return new PathTransform(opts);
-      case "request":
-        const RequestTransform = require('./RequestTransform').default;
-        return new RequestTransform(opts);
-      case "template":
-        const TemplateTransform = require('./TemplateTransform').default;
-        return new TemplateTransform(opts);
+      case 'logging':
+        constructor = require('./LoggingTransform').default;
+        break;
+      case 'noop':
+        constructor = require('./NoopTransform').default;
+        break;
+      case 'path':
+        constructor = require('./PathTransform').default;
+        break;
+      case 'request':
+        constructor = require('./RequestTransform').default;
+        break;
+      case 'stats':
+        constructor = require('./StatsTransform').default;
+        break;
+      case 'template':
+        constructor = require('./TemplateTransform').default;
+        break;
       default:
         logger.warn('Creating unknown transform type %s for transform %s.', type, opts.id);
-        return new Transform(opts);
+        constructor = Transform;
     }
+
+    return new constructor(opts, config);
   }
 
   constructor({id, inputs, opts}) {
@@ -42,6 +48,10 @@ export default class Transform {
     return this._inputs;
   }
 
+  close() {
+    // nop
+  }
+
   emit(data) {
     return Promise.resolve(data);
   }
@@ -50,6 +60,6 @@ export default class Transform {
     logger.warn(
       'Processing event %s from base transform interface (no processing will occur).', eventId
     );
-    return Promise.resolve();
+    return this.emit(null);
   }
 }
