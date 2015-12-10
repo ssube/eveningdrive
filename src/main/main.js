@@ -9,7 +9,7 @@ import Promise from 'bluebird';
 import Config from './server/Config';
 import Manager from './server/Manager';
 import Server from './server/Server';
-import TemplateString from './server/TemplateString';
+import Template from './server/Template';
 import Worker from './server/Worker';
 
 // Configure libraries
@@ -22,7 +22,7 @@ const config = Config.loadFrom(configName);
 logger.debug('Config loaded.');
 
 // Start up templating (register handlebars helpers)
-TemplateString.registerHelpers(config);
+Template.registerHelpers(config);
 
 // Fork or specialize
 let serviceType;

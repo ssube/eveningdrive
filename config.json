@@ -34,7 +34,7 @@
     }
   }],
   "worker": {
-    "count": 8
+    "count": 2
   },
   "params": {
     "tool": "eveningdriver",

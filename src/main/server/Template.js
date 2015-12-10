@@ -1,10 +1,11 @@
 import bunyan from 'bunyan';
+import fs from 'fs';
 import handlebars from 'handlebars';
 import jsonpath from 'JSONPath';
 
-const logger = bunyan.createLogger({name: 'TemplateString'});
+const logger = bunyan.createLogger({name: 'Template'});
 
-export default class TemplateString {
+export default class Template {
   /**
    * Works around a problem in handlebars, where helpers have to be registered
    * at a global level.
@@ -22,8 +23,17 @@ export default class TemplateString {
     });
   }
 
+  static loadTemplate(string) {
+    const prefix = 'file://';
+    if (string.indexOf(prefix) === 0) {
+      return fs.readFileSync(string.substr(prefix.length));
+    } else {
+      return string;
+    }
+  }
+
   constructor(string) {
-    this._string = string;
+    this._string = Template.loadTemplate(string);
     this._template = handlebars.compile(string);
   }
 

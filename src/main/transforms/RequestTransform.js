@@ -3,15 +3,15 @@ import bunyan from 'bunyan';
 import handlebars from 'handlebars';
 
 import Transform from './Transform';
-import TemplateString from '../server/TemplateString';
+import Template from '../server/Template';
 
 export default class RequestTransform extends Transform {
   constructor(opts) {
     super(opts);
-    this._host = new TemplateString(this._opts.host);
-    this._port = new TemplateString(this._opts.port || '80');
-    this._path = new TemplateString(this._opts.path);
-    this._method = new TemplateString(this._opts.method);
+    this._host = new Template(this._opts.host);
+    this._port = new Template(this._opts.port || '80');
+    this._path = new Template(this._opts.path);
+    this._method = new Template(this._opts.method);
   }
 
   process(event, eventId) {
