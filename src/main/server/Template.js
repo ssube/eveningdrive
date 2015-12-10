@@ -26,7 +26,9 @@ export default class Template {
   static loadTemplate(string) {
     const prefix = 'file://';
     if (string.indexOf(prefix) === 0) {
-      return fs.readFileSync(string.substr(prefix.length));
+      const filename = string.substr(prefix.length);
+      logger.debug('Loading template from file %s.', filename);
+      return fs.readFileSync(filename, 'utf8');
     } else {
       return string;
     }
@@ -34,7 +36,8 @@ export default class Template {
 
   constructor(string) {
     this._string = Template.loadTemplate(string);
-    this._template = handlebars.compile(string);
+    logger.info('Creating template from %s.', typeof this._string, this._string);
+    this._template = handlebars.compile(this._string);
   }
 
   render(data) {

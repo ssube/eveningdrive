@@ -30,7 +30,7 @@
     "class": "template",
     "inputs": [1],
     "opts": {
-      "template": "{\"old-root\": \"{{bin}}\", \"config\": \"{{conf \"tool\"}}\"}"
+      "template": "file:///home/ssube/projects/github/eveningdriver/template.hbs"
     }
   }],
   "worker": {
