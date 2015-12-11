@@ -52,10 +52,19 @@ export default class Transform {
     // nop
   }
 
+  /**
+   * Return a promise that immediately resolves with output data.
+   **/
   emit(data) {
     return Promise.resolve(data);
   }
 
+  /**
+   * Process a single incoming event and return a promise that will resolve when the
+   * processing is complete (allowing for async requests during the transform).
+   * If the promises resolves with some output data, that will be emitted as another
+   * event with this transform as the source.
+   **/
   process(event, eventId) {
     logger.warn(
       'Processing event %s from base transform interface (no processing will occur).', eventId

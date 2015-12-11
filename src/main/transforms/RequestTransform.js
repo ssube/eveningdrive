@@ -35,7 +35,13 @@ export default class RequestTransform extends Transform {
         response.on('end', () => {
           const body = data.join('');
           this._logger.debug('Received response while processing event.', eventId, body);
-          res(this.emit(body));
+          try {
+            const parsedBody = JSON.parse(body);
+            res(parsedBody);
+          } catch (e) {
+            this._logger.warn('Error parsing response while processing event %s.', eventId, e);
+            rej();
+          }
         });
       });
       if (this._body) {
