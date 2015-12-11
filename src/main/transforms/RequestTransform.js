@@ -12,6 +12,9 @@ export default class RequestTransform extends Transform {
     this._port = new Template(this._opts.port || '80');
     this._path = new Template(this._opts.path);
     this._method = new Template(this._opts.method);
+    if (this._opts.body) {
+      this._body = new Template(this._opts.body);
+    }
   }
 
   process(event, eventId) {
@@ -35,6 +38,9 @@ export default class RequestTransform extends Transform {
           res(this.emit(body));
         });
       });
+      if (this._body) {
+        req.write(this._body.render(event));
+      }
       req.end();
     });
   }
