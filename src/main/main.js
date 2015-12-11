@@ -21,6 +21,9 @@ logger.info('Loading config from: %s', configName);
 const config = Config.loadFrom(configName);
 logger.debug('Config loaded.');
 
+// Set the global log level
+logger.level(config.log.level);
+
 // Start up templating (register handlebars helpers)
 Template.registerHelpers(config);
 

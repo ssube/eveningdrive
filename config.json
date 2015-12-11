@@ -1,4 +1,7 @@
 {
+  "log": {
+    "level": "debug"
+  },
   "redis": {
     "host": "localhost",
     "port": 6379
@@ -30,8 +33,17 @@
     }
   }, {
     "id": 3,
-    "class": "logging",
+    "class": "request",
     "inputs": [2],
+    "opts": {
+      "host": "md5.jsontest.com",
+      "path": "/?text={{timestamp}}",
+      "method": "GET"
+    }
+  }, {
+    "id": 4,
+    "class": "logging",
+    "inputs": [3],
     "opts": {}
   }],
   "worker": {

@@ -13,7 +13,7 @@ export default class TemplateTransform extends Transform {
       let output = JSON.parse(render);
       return this.emit(output);
     } catch (e) {
-      this._logger.warn('Error rendering or parsing event: %s', e, render);
+      this._logger.warn(e, 'Error rendering or parsing event: %s', render);
       return Promise.reject(e);
     }
   }

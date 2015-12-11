@@ -10,8 +10,8 @@ export default class RequestTransform extends Transform {
     super(opts);
     this._host = new Template(this._opts.host);
     this._port = new Template(this._opts.port || '80');
-    this._path = new Template(this._opts.path);
-    this._method = new Template(this._opts.method);
+    this._path = new Template(this._opts.path || '/');
+    this._method = new Template(this._opts.method || 'GET');
     if (this._opts.body) {
       this._body = new Template(this._opts.body);
     }
@@ -29,24 +29,32 @@ export default class RequestTransform extends Transform {
 
       const req = http.request(options, (response) => {
         const data = [];
+        response.on('error', e => {
+          this._logger.warn(e, 'Error making request while processing event %s.', eventId);
+        });
         response.on('data', chunk => {
           data.push(chunk);
         });
         response.on('end', () => {
           const body = data.join('');
-          this._logger.debug('Received response while processing event.', eventId, body);
+          this._logger.debug('Received response while processing event %s.', eventId, body);
+
           try {
             const parsedBody = JSON.parse(body);
             res(parsedBody);
           } catch (e) {
-            this._logger.warn('Error parsing response while processing event %s.', eventId, e);
+            this._logger.warn(e, 'Error parsing response while processing event %s.', eventId, {
+              response: body
+            });
             rej();
           }
         });
       });
+
       if (this._body) {
         req.write(this._body.render(event));
       }
+
       req.end();
     });
   }

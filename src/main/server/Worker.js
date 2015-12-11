@@ -46,7 +46,7 @@ export default class Worker {
           }
         });
       } catch (e) {
-        logger.warn('Error processing transform on event.', e);
+        logger.warn(e, 'Error processing transform on event.');
         return Promise.resolve();
       }
     });

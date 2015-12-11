@@ -38,4 +38,8 @@ export default class Config {
   get params() {
     return this._data.params;
   }
+
+  get log() {
+    return this._data.log;
+  }
 }
