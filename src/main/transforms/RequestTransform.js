@@ -1,24 +1,41 @@
 import http from 'http';
+import https from 'https';
 import bunyan from 'bunyan';
 import handlebars from 'handlebars';
 
 import Transform from './Transform';
-import Template from '../server/Template';
 
 export default class RequestTransform extends Transform {
   constructor(opts) {
     super(opts);
-    this._host = new Template(this._opts.host);
-    this._port = new Template(this._opts.port || '80');
-    this._path = new Template(this._opts.path || '/');
-    this._method = new Template(this._opts.method || 'GET');
+    this._host = this.getOption('host');
+    this._port = this.getOption('port', '80');
+    this._protocol = this.getOption('protocol', 'http');
+    this._path = this.getOption('path', '/');
+    this._method = this.getOption('method', 'GET');
+
     if (this._opts.body) {
-      this._body = new Template(this._opts.body);
+      this._body = this.getOption('body');
     }
   }
 
   process(event, eventId) {
     return new Promise((res, rej) => {
+      const protocol = this._protocol.render(event);
+      let protocolHandler;
+      switch (protocol) {
+        case 'http':
+          protocolHandler = http;
+          break;
+        case 'https':
+          protocolHandler = https;
+          break;
+        default:
+          this._logger.warn('Unknown protocol handler for %s in event %s.', protocol, eventId);
+          rej();
+          break;
+      }
+
       const options = {
         hostname: this._host.render(event),
         method: this._method.render(event),
@@ -27,7 +44,7 @@ export default class RequestTransform extends Transform {
       }
       this._logger.debug('Making request while processing event %s.', eventId, options);
 
-      const req = http.request(options, (response) => {
+      const req = protocolHandler.request(options, (response) => {
         const data = [];
         response.on('error', e => {
           this._logger.warn(e, 'Error making request while processing event %s.', eventId);

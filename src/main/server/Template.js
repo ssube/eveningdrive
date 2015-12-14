@@ -30,13 +30,13 @@ export default class Template {
       logger.debug('Loading template from file %s.', filename);
       return fs.readFileSync(filename, 'utf8');
     } else {
+      logger.debug('Compiling template from string.', {string});
       return string;
     }
   }
 
   constructor(string) {
     this._string = Template.loadTemplate(string);
-    logger.info('Creating template from %s.', typeof this._string, this._string);
     this._template = handlebars.compile(this._string);
   }
 

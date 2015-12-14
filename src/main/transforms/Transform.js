@@ -1,6 +1,8 @@
 import bunyan from 'bunyan';
 import Promise from 'bluebird';
 
+import Template from '../server/Template';
+
 const logger = bunyan.createLogger({name: 'Transform'});
 
 export default class Transform {
@@ -9,9 +11,6 @@ export default class Transform {
     switch (type) {
       case 'logging':
         constructor = require('./LoggingTransform').default;
-        break;
-      case 'noop':
-        constructor = require('./NoopTransform').default;
         break;
       case 'path':
         constructor = require('./PathTransform').default;
@@ -48,6 +47,10 @@ export default class Transform {
     return this._inputs;
   }
 
+  getOption(name, defaultValue = '') {
+    return new Template(this._opts[name] || defaultValue);
+  }
+
   close() {
     // nop
   }
@@ -57,6 +60,13 @@ export default class Transform {
    **/
   emit(data) {
     return Promise.resolve(data);
+  }
+
+  /**
+   * Return a promise that immediately fails with the supplied error.
+   **/
+  fail(err) {
+    return Promise.reject(err);
   }
 
   /**

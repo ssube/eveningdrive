@@ -4,7 +4,7 @@ import Template from '../server/Template';
 export default class TemplateTransform extends Transform {
   constructor(opts) {
     super(opts);
-    this._template = new Template(this._opts.template);
+    this._template = this.getOption('template');
   }
 
   process(event) {
