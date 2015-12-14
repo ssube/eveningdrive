@@ -15,25 +15,23 @@ export default class StatsTransform extends Transform {
   }
 
   process(event) {
-    const type = this._type.render(event);
-    const name = this._name.render(event);
-    let value;
-
     try {
-      value = parseInt(this._value.render(event), 10);
+      const value = parseInt(this._value.render(event), 10);
+      const type = this._type.render(event);
+      const name = this._name.render(event);
+
+      switch (type) {
+        case 'increment':
+          this._stats.increment(key, value);
+          break;
+        case 'gauge':
+          this._stats.gauge(name, value);
+          break;
+      }
+
+      return this.emit();
     } catch (e) {
       return this.fail(e);
     }
-
-    switch (type) {
-      case 'increment':
-        this._stats.increment(key, value);
-        break;
-      case 'gauge':
-        this._stats.gauge(name, value);
-        break;
-    }
-
-    return this.emit();
   }
 }
