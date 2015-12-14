@@ -1,23 +1,31 @@
 {
+  "event": {
+    "attempts": 1,
+    "timeout": 500
+  },
   "log": {
     "level": "debug"
   },
   "redis": {
     "host": "localhost",
-    "port": 6379
+    "port": 6379,
+    "prefix": "evd"
   },
   "server": {
     "count": 1,
     "port": 8080
   },
+  "shared": {
+    "tool": "eveningdriver",
+    "format": "json"
+  },
   "statsd": {
-    "debug": true,
     "host": "localhost",
     "port": 8125
   },
   "transform": [{
-    "id": 1,
     "class": "request",
+    "id": 1,
     "inputs": [],
     "opts": {
       "host": "date.jsontest.com",
@@ -25,15 +33,15 @@
       "method": "GET"
     }
   }, {
-    "id": 2,
     "class": "template",
+    "id": 2,
     "inputs": [1],
     "opts": {
       "template": "file:///home/ssube/projects/github/eveningdriver/template.hbs"
     }
   }, {
-    "id": 3,
     "class": "request",
+    "id": 3,
     "inputs": [2],
     "opts": {
       "host": "md5.jsontest.com",
@@ -41,18 +49,12 @@
       "method": "GET"
     }
   }, {
-    "id": 4,
     "class": "logging",
+    "id": 4,
     "inputs": [3],
     "opts": {}
   }],
   "worker": {
-    "count": 2,
-    "retry": 0,
-    "timeout": 500
-  },
-  "params": {
-    "tool": "eveningdriver",
-    "format": "json"
+    "count": 2
   }
 }

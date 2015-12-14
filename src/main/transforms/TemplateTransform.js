@@ -14,7 +14,7 @@ export default class TemplateTransform extends Transform {
       return this.emit(output);
     } catch (e) {
       this._logger.warn(e, 'Error rendering or parsing event: %s', render);
-      return Promise.reject(e);
+      return this.fail(e);
     }
   }
 }

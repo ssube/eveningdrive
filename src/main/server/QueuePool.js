@@ -11,12 +11,6 @@ export default class QueuePool {
    *              of input channels (sink:[sources])
    **/
   constructor(config) {
-    let worker = config.worker;
-    this._jobOpts = {
-      attempts: worker.retry,
-      timeout: worker.timeout
-    };
-
     logger.info('Creating queue pool.');
 
     let transforms = config.transform;
@@ -32,6 +26,8 @@ export default class QueuePool {
       const queue = new Queue({host, name, port});
       return {id, name, queue};
     });
+
+    this._job = config.worker.job;
   }
 
   getChannel(id) {
@@ -77,7 +73,7 @@ export default class QueuePool {
       return Promise.all(sinks.map(sink => {
         return this.getChannel(sink);
       }).reduce((p, c) => p.concat(c), []).map(channel => {
-        return channel.queue.add(event, this._jobOpts).then(job => {
+        return channel.queue.add(event, this._job).then(job => {
           logger.info('Created event %s.', job.jobId);
           return job.jobId;
         });

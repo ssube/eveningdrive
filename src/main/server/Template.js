@@ -17,7 +17,7 @@ export default class Template {
     });
 
     handlebars.registerHelper('conf', (key) => {
-      const value = config.params[key];
+      const value = config.shared[key];
       logger.debug('Executing template conf helper.', key, value);
       return value;
     });

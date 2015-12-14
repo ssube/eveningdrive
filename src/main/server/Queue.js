@@ -5,9 +5,14 @@ import Promise from 'bluebird';
 const logger = bunyan.createLogger({name: 'Queue'});
 
 export default class Queue {
-  constructor({name, host, port}) {
+  constructor(config) {
+    const {name, host, pass = null, port, prefix} = config;
+
     this._name = name;
-    this._queue = bull(name, port, host);
+    this._queue = bull(name, port, host, {
+      auth_pass: pass,
+      prefix
+    });
   }
 
   get name() {

@@ -15,16 +15,24 @@ export default class Config {
     this._data = data;
   }
 
-  get worker() {
-    return this._data.worker;
+  get event() {
+    return this._data.event;
+  }
+
+  get log() {
+    return this._data.log;
+  }
+
+  get redis() {
+    return this._data.redis;
   }
 
   get server() {
     return this._data.server;
   }
 
-  get redis() {
-    return this._data.redis;
+  get shared() {
+    return this._data.params;
   }
 
   get statsd() {
@@ -35,11 +43,7 @@ export default class Config {
     return this._data.transform;
   }
 
-  get params() {
-    return this._data.params;
-  }
-
-  get log() {
-    return this._data.log;
+  get worker() {
+    return this._data.worker;
   }
 }

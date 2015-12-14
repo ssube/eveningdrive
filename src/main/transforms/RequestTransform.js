@@ -20,30 +20,30 @@ export default class RequestTransform extends Transform {
   }
 
   process(event, eventId) {
+    const protocol = this._protocol.render(event);
+    let protocolHandler;
+    switch (protocol) {
+      case 'http':
+        protocolHandler = http;
+        break;
+      case 'https':
+        protocolHandler = https;
+        break;
+      default:
+        this._logger.warn('Unknown protocol %s in event %s.', protocol, eventId);
+        rej(new Error('Unknown protocol.'));
+        break;
+    }
+
+    const options = {
+      hostname: this._host.render(event),
+      method: this._method.render(event),
+      port: this._port.render(event),
+      path: this._path.render(event)
+    }
+
+    this._logger.debug('Making request while processing event %s.', eventId, options);
     return new Promise((res, rej) => {
-      const protocol = this._protocol.render(event);
-      let protocolHandler;
-      switch (protocol) {
-        case 'http':
-          protocolHandler = http;
-          break;
-        case 'https':
-          protocolHandler = https;
-          break;
-        default:
-          this._logger.warn('Unknown protocol handler for %s in event %s.', protocol, eventId);
-          rej();
-          break;
-      }
-
-      const options = {
-        hostname: this._host.render(event),
-        method: this._method.render(event),
-        port: this._port.render(event),
-        path: this._path.render(event)
-      }
-      this._logger.debug('Making request while processing event %s.', eventId, options);
-
       const req = protocolHandler.request(options, (response) => {
         const data = [];
         response.on('error', e => {
@@ -63,7 +63,7 @@ export default class RequestTransform extends Transform {
             this._logger.warn(e, 'Error parsing response while processing event %s.', eventId, {
               response: body
             });
-            rej();
+            rej(e);
           }
         });
       });
