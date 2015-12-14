@@ -22,7 +22,19 @@ export default class Queue {
     this._queue.close();
   }
 
-  add(event) {
-    return this._queue.add(event);
+  pause() {
+    return this._queue.pause();
+  }
+
+  resume() {
+    return this._queue.resume();
+  }
+
+  flush() {
+    return this._queue.empty();
+  }
+
+  add(event, options) {
+    return this._queue.add(event, options);
   }
 }

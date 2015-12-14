@@ -11,22 +11,31 @@ export default class QueuePool {
    *              of input channels (sink:[sources])
    **/
   constructor(config) {
-    const prefix = 'transform';
-    let {host, port} = config.redis;
-    let transforms = config.transform;
+    let worker = config.worker;
+    this._jobOpts = {
+      attempts: worker.retry,
+      timeout: worker.timeout
+    };
 
     logger.info('Creating queue pool.');
 
+    let transforms = config.transform;
     this._links = transforms.reduce((p, transform) => {
       p[transform.id] = transform.inputs;
       return p;
     }, {});
 
+    const prefix = 'transform';
+    let {host, port} = config.redis;
     this._channels = Object.keys(this._links).map(id => {
       const name = `${prefix}-${id}`;
       const queue = new Queue({host, name, port});
       return {id, name, queue};
     });
+  }
+
+  getChannel(id) {
+    return this._channels.filter(channel => channel.id == id);
   }
 
   listen(cb) {
@@ -40,8 +49,16 @@ export default class QueuePool {
     this._channels.forEach(channel => channel.queue.close());
   }
 
-  getChannel(id) {
-    return this._channels.filter(channel => channel.id == id);
+  pause() {
+    return Promise.all(this._channels.map(channel => channel.pause()));
+  }
+
+  resume() {
+    return Promise.all(this._channels.map(channel => channel.resume()));
+  }
+
+  flush() {
+    return Promise.all(this._channels.map(channel => channel.flush()));
   }
 
   add(event, source, targets = []) {
@@ -60,7 +77,7 @@ export default class QueuePool {
       return Promise.all(sinks.map(sink => {
         return this.getChannel(sink);
       }).reduce((p, c) => p.concat(c), []).map(channel => {
-        return channel.queue.add(event).then(job => {
+        return channel.queue.add(event, this._jobOpts).then(job => {
           logger.info('Created event %s.', job.jobId);
           return job.jobId;
         });

@@ -47,7 +47,9 @@
     "opts": {}
   }],
   "worker": {
-    "count": 2
+    "count": 2,
+    "retry": 0,
+    "timeout": 500
   },
   "params": {
     "tool": "eveningdriver",
