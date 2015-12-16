@@ -11,7 +11,7 @@ export default class Event {
 
   bind() {
     this._router.get('/', this.getAll.bind(this));
-    this._router.get('/waiting', this.getWaiting.bind(this));
+    this._router.get('/pending', this.getPending.bind(this));
     this._router.get('/running', this.getRunning.bind(this));
     this._router.get('/completed', this.getCompleted.bind(this));
     this._router.get('/failed', this.getFailed.bind(this));
