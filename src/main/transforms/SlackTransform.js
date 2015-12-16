@@ -41,7 +41,14 @@ export default class SlackTransform extends Transform {
 
     const attachments = this._attachments.render(event);
     if (attachments) {
-      body.attachments = attachments;
+      try {
+        body.attachments = [JSON.parse(attachments)];
+      } catch (e) {
+        this._logger.warn(e, 'Error parsing Slack attachments for event %s', eventId, {
+          attachments
+        });
+        return this.fail(e);
+      }
     }
 
     this._logger.info('Sending Slack message for event %s.', eventId, {options, body});
@@ -57,16 +64,13 @@ export default class SlackTransform extends Transform {
         });
         response.on('end', () => {
           const body = data.join('');
-          this._logger.debug('Received response while processing event %s.', eventId, body);
+          this._logger.debug('Received response while processing event %s.', eventId, {body});
 
-          try {
-            const parsedBody = JSON.parse(body);
-            res(parsedBody);
-          } catch (e) {
-            this._logger.warn(e, 'Error parsing response while processing event %s.', eventId, {
-              response: body
-            });
-            rej(e);
+          if (body === 'ok') {
+            res({ok: true});
+          } else {
+            this._logger.warn('Error sending message to Slack for event %s.', eventId, {body});
+            rej({ok: false});
           }
         });
       });
