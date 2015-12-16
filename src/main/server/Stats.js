@@ -27,12 +27,12 @@ export default class Stats {
   }
 
   counter(name, value = 1) {
-    logger.info('Updating counter %s by %s.', name, value);
+    logger.debug('Updating counter %s by %s.', name, value);
     this._statsd.counter(name, value);
   }
 
   gauge(name, value) {
-    logger.info('Gauging %s at %s.', name, value);
+    logger.debug('Gauging %s at %s.', name, value);
     this._statsd.gauge(name, value);
   }
 }
