@@ -58,7 +58,7 @@ export default class QueuePool {
   }
 
   add(event, source, targets = []) {
-    logger.info('Creating event from %s.', source, {targets});
+    logger.info('Creating event from %s.', source, {event, targets});
 
     const inputSinks = Object.keys(this._links).filter(link => {
       const sources = this._links[link];
@@ -76,7 +76,7 @@ export default class QueuePool {
 
       return Promise.all(channels.map(channel => {
         return channel.add(event, this._job).then(job => {
-          logger.info('Created event %s.', job.jobId);
+          logger.info('Created event %s.', job.id);
           return job;
         });
       }));
