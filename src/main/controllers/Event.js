@@ -21,9 +21,12 @@ export default class Event {
 
   getAll(req, res) {
     this._server.stats.counter('server.endpoint.event');
-    logger.warn('Getting all events (not implemented).');
+    logger.debug('Getting all events.');
 
-    res.status(200).send([]);
+    this._server.queues.getAll().then(events => {
+      logger.debug('Found %s events.', events.length);
+      res.status(200).send(events);
+    });
   }
 
   getOne(req, res) {

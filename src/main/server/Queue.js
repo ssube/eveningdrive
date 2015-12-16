@@ -1,6 +1,7 @@
 import bull from 'bull';
 import bunyan from 'bunyan';
 import Promise from 'bluebird';
+import Utils from './Utils';
 
 const logger = bunyan.createLogger({name: 'Queue'});
 
@@ -62,6 +63,17 @@ export default class Queue {
 
   get(id) {
     return this._queue.getJob(id).then(Queue.cleanJobs);
+  }
+
+  getAll() {
+    const eventsByStatus = [
+      this.getPending(),
+      this.getRunning(),
+      this.getCompleted(),
+      this.getFailed()
+    ];
+
+    return Promise.all(eventsByStatus).then(Utils.flatten);
   }
 
   getPending() {
