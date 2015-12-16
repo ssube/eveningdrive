@@ -3,20 +3,7 @@ import bunyan from 'bunyan';
 import Promise from 'bluebird';
 import Utils from './Utils';
 
-
 export default class Queue {
-  static cleanJobs(jobs) {
-    if (Array.isArray(jobs)) {
-      return jobs.map(Queue.cleanJobs);
-    } else {
-      return {
-        attempts: jobs.attemptsMade,
-        data: jobs.data,
-        id: jobs.jobId
-      };
-    }
-  }
-
   constructor(config) {
     const {host, id, name, pass = null, port, prefix} = config;
 
@@ -36,6 +23,21 @@ export default class Queue {
 
   get name() {
     return this._name;
+  }
+
+  cleanJobs(jobs) {
+    if (Array.isArray(jobs)) {
+      return Utils.compact(jobs).map(jobs => this.cleanJobs(jobs));
+    } else if (jobs) {
+      return {
+        attempts: jobs.attemptsMade,
+        data: jobs.data,
+        id: jobs.jobId,
+        transform: this._id
+      };
+    } else {
+      return null;
+    }
   }
 
   listen(cb) {
@@ -59,11 +61,11 @@ export default class Queue {
   }
 
   add(event, options) {
-    return this._queue.add(event, options).then(Queue.cleanJobs);
+    return this._queue.add(event, options).then(jobs => this.cleanJobs(jobs));
   }
 
   get(id) {
-    return this._queue.getJob(id).then(Queue.cleanJobs);
+    return this._queue.getJob(id).then(jobs => this.cleanJobs(jobs));
   }
 
   getAll() {
@@ -78,18 +80,18 @@ export default class Queue {
   }
 
   getPending() {
-    return this._queue.getWaiting().then(Queue.cleanJobs);
+    return this._queue.getWaiting().then(jobs => this.cleanJobs(jobs));
   }
 
   getRunning() {
-    return this._queue.getActive().then(Queue.cleanJobs);
+    return this._queue.getActive().then(jobs => this.cleanJobs(jobs));
   }
 
   getCompleted() {
-    return this._queue.getCompleted().then(Queue.cleanJobs);
+    return this._queue.getCompleted().then(jobs => this.cleanJobs(jobs));
   }
 
   getFailed() {
-    return this._queue.getFailed().then(Queue.cleanJobs);
+    return this._queue.getFailed().then(jobs => this.cleanJobs(jobs));
   }
 }
