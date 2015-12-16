@@ -3,7 +3,6 @@ import bunyan from 'bunyan';
 import Promise from 'bluebird';
 import Utils from './Utils';
 
-const logger = bunyan.createLogger({name: 'Queue'});
 
 export default class Queue {
   static cleanJobs(jobs) {
@@ -27,6 +26,8 @@ export default class Queue {
       auth_pass: pass,
       prefix
     });
+
+    this._logger = bunyan.createLogger({name: `Queue-${id}`});
   }
 
   get id() {
@@ -89,6 +90,6 @@ export default class Queue {
   }
 
   getFailed() {
-    return this._queue.getWaiting().then(Queue.cleanJobs);
+    return this._queue.getFailed().then(Queue.cleanJobs);
   }
 }

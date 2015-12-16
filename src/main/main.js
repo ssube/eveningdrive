@@ -35,8 +35,9 @@ if (cluster.isMaster) {
   logger.info('Launching manager process.');
   serviceType = Manager;
 } else {
+  // Launch the worker main
   let {WORKER_ROLE: role, WORKER_ID: id} = process.env;
-  logger.info('Launching worker process %s in role: %s', id, role);
+  logger.info('Launching worker process %s as %s.', id, role);
   if (role === 'worker') {
     serviceType = Worker;
   } else if (role === 'server') {
