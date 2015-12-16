@@ -5,7 +5,7 @@ start main:
     start worker
     start server
   else if worker:
-    bind event channels
+    bind event queues
   else if server:
     bind http
 
@@ -15,7 +15,7 @@ start worker:
 start server:
   fork server process
 
-bind event channels:
+bind event queues:
   for each transform:
     bind queue for transform
 

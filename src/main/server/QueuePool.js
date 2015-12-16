@@ -8,8 +8,8 @@ const logger = bunyan.createLogger({name: 'QueuePool'});
 
 export default class QueuePool {
   /**
-   * @param links A hash where keys are the IDs of each channel and the value is an array
-   *              of input channels (sink:[sources])
+   * @param links A hash where keys are the IDs of each queue and the value is an array
+   *              of input queues (sink:[sources])
    **/
   constructor(config) {
     logger.info('Creating queue pool.');
@@ -22,7 +22,7 @@ export default class QueuePool {
 
     const prefix = 'transform';
     let {host, port} = config.redis;
-    this._channels = Object.keys(this._links).map(id => {
+    this._queues = Object.keys(this._links).map(id => {
       const name = `${prefix}-${id}`;
       return new Queue({id, host, name, port});
     });
@@ -30,31 +30,31 @@ export default class QueuePool {
     this._job = config.worker.job;
   }
 
-  getChannel(id) {
-    return this._channels.filter(channel => channel.id == id);
+  getQueue(id) {
+    return this._queues.filter(queue => queue.id == id);
   }
 
   listen(cb) {
-    return Promise.all(this._channels.map(channel => channel.listen(job => {
-      logger.info('Received event %s for transform %s.', job.jobId, channel.id);
-      return cb(channel, job);
+    return Promise.all(this._queues.map(queue => queue.listen(job => {
+      logger.info('Received event %s for transform %s.', job.jobId, queue.id);
+      return cb(queue, job);
     })));
   }
 
   close() {
-    return Promise.all(this._channels.map(channel => channel.close()));
+    return Promise.all(this._queues.map(queue => queue.close()));
   }
 
   pause() {
-    return Promise.all(this._channels.map(channel => channel.pause()));
+    return Promise.all(this._queues.map(queue => queue.pause()));
   }
 
   resume() {
-    return Promise.all(this._channels.map(channel => channel.resume()));
+    return Promise.all(this._queues.map(queue => queue.resume()));
   }
 
   flush() {
-    return Promise.all(this._channels.map(channel => channel.flush()));
+    return Promise.all(this._queues.map(queue => queue.flush()));
   }
 
   add(event, source, targets = []) {
@@ -70,12 +70,12 @@ export default class QueuePool {
     const sinks = targets.concat(inputSinks);
 
     if (sinks.length) {
-      const channels = Utils.flatten(sinks.map(sink => {
-        return this.getChannel(sink);
+      const queues = Utils.flatten(sinks.map(sink => {
+        return this.getQueue(sink);
       }));
 
-      return Promise.all(channels.map(channel => {
-        return channel.add(event, this._job).then(job => {
+      return Promise.all(queues.map(queue => {
+        return queue.add(event, this._job).then(job => {
           logger.info('Created event %s.', job.id);
           return job;
         });
@@ -89,31 +89,31 @@ export default class QueuePool {
   get(eventId, transformId = 0) {
     let results;
     if (transformId) {
-      results = Promise.all(this.getChannel(transformId).map(channel => channel.get(eventId)));
+      results = Promise.all(this.getQueue(transformId).map(queue => queue.get(eventId)));
     } else {
-      results = Promise.all(this._channels.map(channel => channel.get(eventId)));
+      results = Promise.all(this._queues.map(queue => queue.get(eventId)));
     }
 
     return results.then(Utils.compact);
   }
 
   getAll() {
-    return Promise.all(this._channels.map(channel => channel.getAll())).then(Utils.flatten);
+    return Promise.all(this._queues.map(queue => queue.getAll())).then(Utils.flatten);
   }
 
   getPending() {
-    return Promise.all(this._channels.map(channel => channel.getPending())).then(Utils.flatten);
+    return Promise.all(this._queues.map(queue => queue.getPending())).then(Utils.flatten);
   }
 
   getRunning() {
-    return Promise.all(this._channels.map(channel => channel.getRunning())).then(Utils.flatten);
+    return Promise.all(this._queues.map(queue => queue.getRunning())).then(Utils.flatten);
   }
 
   getCompleted() {
-    return Promise.all(this._channels.map(channel => channel.getCompleted())).then(Utils.flatten);
+    return Promise.all(this._queues.map(queue => queue.getCompleted())).then(Utils.flatten);
   }
 
   getFailed() {
-    return Promise.all(this._channels.map(channel => channel.getFailed())).then(Utils.flatten);
+    return Promise.all(this._queues.map(queue => queue.getFailed())).then(Utils.flatten);
   }
 }
