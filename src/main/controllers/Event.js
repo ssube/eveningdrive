@@ -28,7 +28,7 @@ export default class Event {
     this._server.stats.counter(`server.endpoint.event.${eventId}`);
     logger.debug('Getting event %s.', eventId);
 
-    const event = this._server.queues.get(event).then(events => {
+    const event = this._server.queues.get(eventId).then(events => {
       if (events && events.length) {
         logger.debug('Found %s events matching id %s.', events.length, eventId, {events});
         res.status(200).send(events);

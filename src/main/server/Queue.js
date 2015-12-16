@@ -25,11 +25,11 @@ export default class Queue {
   }
 
   listen(cb) {
-    this._queue.process(cb);
+    return this._queue.process(cb);
   }
 
   close() {
-    this._queue.close();
+    return this._queue.close();
   }
 
   pause() {

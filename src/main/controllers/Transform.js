@@ -44,11 +44,8 @@ export default class Transform {
     this._server.stats.counter(`server.endpoint.transform.${transform}.event`);
     logger.debug('Creating webhook event for transform %s.', transform);
 
-    this._server.queues.add(req.body, 0, [transform]).then(ids => {
-      res.status(201).send({
-        'status': 'queued event',
-        'events': ids
-      });
+    this._server.queues.add(req.body, 0, [transform]).then(events => {
+      res.status(201).send(events);
     });
   }
 

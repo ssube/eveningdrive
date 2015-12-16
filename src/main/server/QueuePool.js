@@ -34,14 +34,14 @@ export default class QueuePool {
   }
 
   listen(cb) {
-    this._channels.forEach(channel => channel.listen(job => {
+    return Promise.all(this._channels.map(channel => channel.listen(job => {
       logger.info('Received event %s for transform %s.', job.jobId, channel.id);
       return cb(channel, job);
-    }));
+    })));
   }
 
   close() {
-    this._channels.forEach(channel => channel.close());
+    return Promise.all(this._channels.map(channel => channel.close()));
   }
 
   pause() {
@@ -69,36 +69,40 @@ export default class QueuePool {
     const sinks = targets.concat(inputSinks);
 
     if (sinks.length) {
-      return Promise.all(sinks.map(sink => {
+      const channels = sinks.map(sink => {
         return this.getChannel(sink);
-      }).reduce((p, c) => p.concat(c), []).map(channel => {
+      }).reduce((p, c) => p.concat(c), []);
+
+      return Promise.all(channels.map(channel => {
         return channel.add(event, this._job).then(job => {
           logger.info('Created event %s.', job.jobId);
-          return job.jobId;
+          return QueuePool.cleanJob(job);
         });
       }));
     } else {
-      logger.info('No destination found, skipping event.');
+      logger.debug('No destination found, skipping event.');
       return Promise.resolve([]);
     }
   }
 
-  get(eventId, transformId = -1) {
+  get(eventId, transformId = 0) {
     let results;
-    if (transformId === -1) {
-      results = Promise.all(this._channels.map(channel => channel.get(eventId)))
-    } else {
+    if (transformId) {
       results = Promise.all(this.getChannel(transformId).map(channel => channel.get(eventId)));
+    } else {
+      results = Promise.all(this._channels.map(channel => channel.get(eventId)));
     }
 
     return results.then(jobs => {
-      return jobs.filter(job => job != null).map(job => {
-        return {
-          attempts: job.attemptsMade,
-          data: job.data,
-          id: job.jobId
-        };
-      });
+      return jobs.filter(job => job != null).map(QueuePool.cleanJob);
     });
+  }
+
+  static cleanJob(job) {
+    return {
+      attempts: job.attemptsMade,
+      data: job.data,
+      id: job.jobId
+    };
   }
 }
