@@ -1,6 +1,5 @@
 import http from 'http';
 import https from 'https';
-import bunyan from 'bunyan';
 
 import Transform from './Transform';
 

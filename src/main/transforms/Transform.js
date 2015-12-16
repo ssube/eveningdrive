@@ -9,6 +9,9 @@ export default class Transform {
   static create(type, opts, config) {
     let constructor;
     switch (type) {
+      case 'filter':
+        constructor = require('./FilterTransform').default;
+        break;
       case 'logging':
         constructor = require('./LoggingTransform').default;
         break;
