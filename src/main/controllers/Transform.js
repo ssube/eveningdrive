@@ -40,11 +40,19 @@ export default class Transform {
 
   createEvent(req, res) {
     const transform = req.params.id;
+    const event = req.body;
+    const params = req.query;
+
+    if (event.params) {
+      logger.warn('Unable to inject request params, conflicting field.');
+    } else {
+      event.params = params;
+    }
 
     this._server.stats.counter(`server.endpoint.transform.${transform}.event`);
-    logger.debug('Creating webhook event for transform %s.', transform, {body: req.body});
+    logger.debug('Creating webhook event for transform %s.', transform, {event});
 
-    this._server.queues.add(req.body, 0, [transform]).then(events => {
+    this._server.queues.add(event, 0, [transform]).then(events => {
       res.status(201).send(events);
     });
   }
