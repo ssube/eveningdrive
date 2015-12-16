@@ -16,7 +16,7 @@ import Worker from './server/Worker';
 const logger = bunyan.createLogger({name: 'main'});
 
 // Load config
-const configName = process.env['ED_CONFIG'] || './config.json';
+const configName = process.env['EVD_CONFIG'] || './config.json';
 logger.info('Loading config from: %s', configName);
 const config = Config.loadFrom(configName);
 logger.debug('Config loaded.');

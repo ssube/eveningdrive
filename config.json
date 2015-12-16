@@ -24,34 +24,9 @@
     "port": 8125
   },
   "transform": [{
-    "class": "request",
+    "class": "logging",
     "id": 1,
     "inputs": [],
-    "opts": {
-      "host": "date.jsontest.com",
-      "path": "/",
-      "method": "GET"
-    }
-  }, {
-    "class": "template",
-    "id": 2,
-    "inputs": [1],
-    "opts": {
-      "template": "file:///home/ssube/projects/github/eveningdriver/template.hbs"
-    }
-  }, {
-    "class": "request",
-    "id": 3,
-    "inputs": [2],
-    "opts": {
-      "host": "md5.jsontest.com",
-      "path": "/?text={{timestamp}}",
-      "method": "GET"
-    }
-  }, {
-    "class": "logging",
-    "id": 4,
-    "inputs": [3],
     "opts": {}
   }],
   "worker": {

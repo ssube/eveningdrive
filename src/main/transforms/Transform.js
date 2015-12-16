@@ -18,6 +18,9 @@ export default class Transform {
       case 'request':
         constructor = require('./RequestTransform').default;
         break;
+      case 'slack':
+        constructor = require('./SlackTransform').default;
+        break;
       case 'stats':
         constructor = require('./StatsTransform').default;
         break;

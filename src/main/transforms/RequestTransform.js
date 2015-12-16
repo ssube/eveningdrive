@@ -1,7 +1,6 @@
 import http from 'http';
 import https from 'https';
 import bunyan from 'bunyan';
-import handlebars from 'handlebars';
 
 import Transform from './Transform';
 
