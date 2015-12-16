@@ -43,11 +43,11 @@ export default class Event {
     });
   }
 
-  getWaiting(req, res) {
-    this._server.stats.counter('server.endpoint.event.waiting');
-    logger.debug('Getting waiting events.');
+  getPending(req, res) {
+    this._server.stats.counter('server.endpoint.event.pending');
+    logger.debug('Getting pending events.');
 
-    return this._server.queues.getWaiting().then(events => {
+    return this._server.queues.getPending().then(events => {
       res.status(200).send(events);
     });
   }

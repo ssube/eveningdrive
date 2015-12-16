@@ -97,8 +97,8 @@ export default class QueuePool {
     return results.then(Utils.compact);
   }
 
-  getWaiting() {
-    return Promise.all(this._channels.map(channel => channel.getWaiting())).then(Utils.flatten);
+  getPending() {
+    return Promise.all(this._channels.map(channel => channel.getPending())).then(Utils.flatten);
   }
 
   getRunning() {

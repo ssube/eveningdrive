@@ -64,7 +64,7 @@ export default class Queue {
     return this._queue.getJob(id).then(Queue.cleanJobs);
   }
 
-  getWaiting() {
+  getPending() {
     return this._queue.getWaiting().then(Queue.cleanJobs);
   }
 
