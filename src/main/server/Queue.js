@@ -6,13 +6,18 @@ const logger = bunyan.createLogger({name: 'Queue'});
 
 export default class Queue {
   constructor(config) {
-    const {name, host, pass = null, port, prefix} = config;
+    const {host, id, name, pass = null, port, prefix} = config;
 
+    this._id = id;
     this._name = name;
     this._queue = bull(name, port, host, {
       auth_pass: pass,
       prefix
     });
+  }
+
+  get id() {
+    return this._id;
   }
 
   get name() {
@@ -41,5 +46,9 @@ export default class Queue {
 
   add(event, options) {
     return this._queue.add(event, options);
+  }
+
+  get(id) {
+    return this._queue.getJob(id);
   }
 }

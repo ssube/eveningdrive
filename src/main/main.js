@@ -22,7 +22,9 @@ const config = Config.loadFrom(configName);
 logger.debug('Config loaded.');
 
 // Set the global log level
-logger.level(config.log.level);
+const level = config.log.level;
+logger.info('Setting log level to %s.', level);
+logger.level(level);
 
 // Start up templating (register handlebars helpers)
 Template.registerHelpers(config);

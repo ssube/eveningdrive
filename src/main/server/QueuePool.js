@@ -23,8 +23,7 @@ export default class QueuePool {
     let {host, port} = config.redis;
     this._channels = Object.keys(this._links).map(id => {
       const name = `${prefix}-${id}`;
-      const queue = new Queue({host, name, port});
-      return {id, name, queue};
+      return new Queue({id, host, name, port});
     });
 
     this._job = config.worker.job;
@@ -35,14 +34,14 @@ export default class QueuePool {
   }
 
   listen(cb) {
-    this._channels.forEach(channel => channel.queue.listen(job => {
+    this._channels.forEach(channel => channel.listen(job => {
       logger.info('Received event %s for transform %s.', job.jobId, channel.id);
       return cb(channel, job);
     }));
   }
 
   close() {
-    this._channels.forEach(channel => channel.queue.close());
+    this._channels.forEach(channel => channel.close());
   }
 
   pause() {
@@ -73,7 +72,7 @@ export default class QueuePool {
       return Promise.all(sinks.map(sink => {
         return this.getChannel(sink);
       }).reduce((p, c) => p.concat(c), []).map(channel => {
-        return channel.queue.add(event, this._job).then(job => {
+        return channel.add(event, this._job).then(job => {
           logger.info('Created event %s.', job.jobId);
           return job.jobId;
         });
@@ -82,5 +81,24 @@ export default class QueuePool {
       logger.info('No destination found, skipping event.');
       return Promise.resolve([]);
     }
+  }
+
+  get(eventId, transformId = -1) {
+    let results;
+    if (transformId === -1) {
+      results = Promise.all(this._channels.map(channel => channel.get(eventId)))
+    } else {
+      results = Promise.all(this.getChannel(transformId).map(channel => channel.get(eventId)));
+    }
+
+    return results.then(jobs => {
+      return jobs.filter(job => job != null).map(job => {
+        return {
+          attempts: job.attemptsMade,
+          data: job.data,
+          id: job.jobId
+        };
+      });
+    });
   }
 }

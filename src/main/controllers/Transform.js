@@ -13,6 +13,7 @@ export default class Transform {
     this._router.get('/', this.getAll.bind(this));
     this._router.get('/:id', this.getOne.bind(this));
     this._router.post('/:id/event', this.createEvent.bind(this));
+    this._router.get('/:id/event/:eventid', this.getEvent.bind(this));
     return this._router;
   }
 
@@ -40,7 +41,7 @@ export default class Transform {
   createEvent(req, res) {
     const transform = req.params.id;
 
-    this._server.stats.counter(`server.endpoint.event.create.${transform}`);
+    this._server.stats.counter(`server.endpoint.transform.${transform}.event`);
     logger.debug('Creating webhook event for transform %s.', transform);
 
     this._server.queues.add(req.body, 0, [transform]).then(ids => {
@@ -48,6 +49,24 @@ export default class Transform {
         'status': 'queued event',
         'events': ids
       });
+    });
+  }
+
+  getEvent(req, res) {
+    const transform = req.params.id;
+    const event = req.params.eventid;
+
+    this._server.stats.counter(`server.endpoint.transform.${transform}.event.${event}`);
+    logger.debug('Getting event %s from transform %s.', event, transform);
+
+    this._server.queues.get(event, transform).then(jobs => {
+      if (jobs && jobs.length) {
+        logger.info('Found %s events matching id %s.', jobs.length, event, {jobs});
+        res.status(200).send(jobs);
+      } else {
+        logger.debug('Found no events matching id %s.', event);
+        res.status(404).send([]);
+      }
     });
   }
 }
