@@ -11,6 +11,10 @@ export default class Event {
 
   bind() {
     this._router.get('/', this.getAll.bind(this));
+    this._router.get('/waiting', this.getWaiting.bind(this));
+    this._router.get('/running', this.getRunning.bind(this));
+    this._router.get('/completed', this.getCompleted.bind(this));
+    this._router.get('/failed', this.getFailed.bind(this));
     this._router.get('/:id', this.getOne.bind(this));
     return this._router;
   }
@@ -36,6 +40,42 @@ export default class Event {
         logger.debug('Found no events matching id %s.', eventId);
         res.status(404).send([]);
       }
+    });
+  }
+
+  getWaiting(req, res) {
+    this._server.stats.counter('server.endpoint.event.waiting');
+    logger.debug('Getting waiting events.');
+
+    return this._server.queues.getWaiting().then(events => {
+      res.status(200).send(events);
+    });
+  }
+
+  getRunning(req, res) {
+    this._server.stats.counter('server.endpoint.event.running');
+    logger.debug('Getting running events.');
+
+    return this._server.queues.getRunning().then(events => {
+      res.status(200).send(events);
+    });
+  }
+
+  getCompleted(req, res) {
+    this._server.stats.counter('server.endpoint.event.completed');
+    logger.debug('Getting completed events.');
+
+    return this._server.queues.getCompleted().then(events => {
+      res.status(200).send(events);
+    });
+  }
+
+  getFailed(req, res) {
+    this._server.stats.counter('server.endpoint.event.failed');
+    logger.debug('Getting failed events.');
+
+    return this._server.queues.getFailed().then(events => {
+      res.status(200).send(events);
     });
   }
 }

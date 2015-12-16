@@ -5,6 +5,18 @@ import Promise from 'bluebird';
 const logger = bunyan.createLogger({name: 'Queue'});
 
 export default class Queue {
+  static cleanJobs(jobs) {
+    if (Array.isArray(jobs)) {
+      return jobs.map(Queue.cleanJobs);
+    } else {
+      return {
+        attempts: jobs.attemptsMade,
+        data: jobs.data,
+        id: jobs.jobId
+      };
+    }
+  }
+
   constructor(config) {
     const {host, id, name, pass = null, port, prefix} = config;
 
@@ -45,10 +57,26 @@ export default class Queue {
   }
 
   add(event, options) {
-    return this._queue.add(event, options);
+    return this._queue.add(event, options).then(Queue.cleanJobs);
   }
 
   get(id) {
-    return this._queue.getJob(id);
+    return this._queue.getJob(id).then(Queue.cleanJobs);
+  }
+
+  getWaiting() {
+    return this._queue.getWaiting().then(Queue.cleanJobs);
+  }
+
+  getRunning() {
+    return this._queue.getActive().then(Queue.cleanJobs);
+  }
+
+  getCompleted() {
+    return this._queue.getCompleted().then(Queue.cleanJobs);
+  }
+
+  getFailed() {
+    return this._queue.getWaiting().then(Queue.cleanJobs);
   }
 }

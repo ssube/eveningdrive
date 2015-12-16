@@ -2,6 +2,7 @@ import bunyan from 'bunyan';
 import Promise from 'bluebird';
 
 import Queue from './Queue';
+import Utils from './Utils';
 
 const logger = bunyan.createLogger({name: 'QueuePool'});
 
@@ -69,14 +70,14 @@ export default class QueuePool {
     const sinks = targets.concat(inputSinks);
 
     if (sinks.length) {
-      const channels = sinks.map(sink => {
+      const channels = Utils.flatten(sinks.map(sink => {
         return this.getChannel(sink);
-      }).reduce((p, c) => p.concat(c), []);
+      }));
 
       return Promise.all(channels.map(channel => {
         return channel.add(event, this._job).then(job => {
           logger.info('Created event %s.', job.jobId);
-          return QueuePool.cleanJob(job);
+          return job;
         });
       }));
     } else {
@@ -93,16 +94,22 @@ export default class QueuePool {
       results = Promise.all(this._channels.map(channel => channel.get(eventId)));
     }
 
-    return results.then(jobs => {
-      return jobs.filter(job => job != null).map(QueuePool.cleanJob);
-    });
+    return results.then(Utils.compact);
   }
 
-  static cleanJob(job) {
-    return {
-      attempts: job.attemptsMade,
-      data: job.data,
-      id: job.jobId
-    };
+  getWaiting() {
+    return Promise.all(this._channels.map(channel => channel.getWaiting())).then(Utils.flatten);
+  }
+
+  getRunning() {
+    return Promise.all(this._channels.map(channel => channel.getRunning())).then(Utils.flatten);
+  }
+
+  getCompleted() {
+    return Promise.all(this._channels.map(channel => channel.getCompleted())).then(Utils.flatten);
+  }
+
+  getFailed() {
+    return Promise.all(this._channels.map(channel => channel.getFailed())).then(Utils.flatten);
   }
 }
