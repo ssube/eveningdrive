@@ -27,6 +27,10 @@ export default class Config {
     return this._data.redis;
   }
 
+  get schedule() {
+    return this._data.schedule;
+  }
+
   get server() {
     return this._data.server;
   }

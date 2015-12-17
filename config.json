@@ -11,6 +11,11 @@
     "port": 6379,
     "prefix": "evd"
   },
+  "schedule": [{
+    "body": "{{this}}",
+    "id": 1,
+    "text": "every 1 minute"
+  }],
   "server": {
     "count": 1,
     "port": 8080

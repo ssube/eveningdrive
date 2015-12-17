@@ -9,12 +9,13 @@ import Promise from 'bluebird';
 
 import Config from './server/Config';
 import Manager from './server/Manager';
+import Scheduler from './server/Scheduler';
 import Server from './server/Server';
 import Template from './server/Template';
 import Worker from './server/Worker';
 
 // Configure libraries
-const logger = bunyan.createLogger({name: 'main'});
+const logger = bunyan.createLogger({name: 'eveningdriver'});
 
 // Load config
 const rootPath = process.env['EVD_ROOT'] || __dirname;
@@ -47,11 +48,13 @@ if (cluster.isMaster) {
     serviceType = Worker;
   } else if (role === 'server') {
     serviceType = Server;
+  } else if (role === 'scheduler') {
+    serviceType = Scheduler;
   } else {
     logger.error('Unknown role %s for worker %s.', role, cluster.worker.id);
   }
 }
 
 // Launch
-let service = serviceType.start(config);
+let service = serviceType.start(config, logger);
 service.listen();

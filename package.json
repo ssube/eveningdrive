@@ -39,6 +39,7 @@
     "bunyan": "^1.5.1",
     "express": "^4.13.3",
     "handlebars": "^4.0.4",
+    "later": "^1.2.0",
     "statsd-client": "^0.2.1"
   }
 }
