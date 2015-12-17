@@ -35,11 +35,16 @@ export default class Transform {
     return new constructor(opts, config, logger);
   }
 
-  constructor({id, inputs, opts}, config, logger) {
+  constructor({comment, id, inputs, opts}, config, logger) {
+    this._comment = comment;
     this._id = id;
     this._inputs = inputs;
     this._logger = logger.child({class: this.constructor.name, id});
     this._opts = opts;
+  }
+
+  get comment() {
+    return this._comment;
   }
 
   get id() {
