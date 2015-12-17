@@ -18,15 +18,13 @@ export default class Manager {
     const config = this._config;
     for (let i = 0; i < config.worker.count; ++i) {
       this._children.push(cluster.fork({
-        'WORKER_ROLE': 'worker',
-        'WORKER_ID': i
+        'WORKER_ROLE': 'worker'
       }));
     }
 
     for (let i = 0; i < config.server.count; ++i) {
       this._children.push(cluster.fork({
-        'WORKER_ROLE': 'server',
-        'WORKER_ID': i
+        'WORKER_ROLE': 'server'
       }));
     }
   }

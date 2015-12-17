@@ -32,7 +32,7 @@ export default class Config {
   }
 
   get shared() {
-    return this._data.params;
+    return this._data.shared;
   }
 
   get statsd() {

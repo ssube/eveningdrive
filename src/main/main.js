@@ -4,6 +4,7 @@
 
 import bunyan from 'bunyan';
 import cluster from 'cluster';
+import path from 'path';
 import Promise from 'bluebird';
 
 import Config from './server/Config';
@@ -16,10 +17,14 @@ import Worker from './server/Worker';
 const logger = bunyan.createLogger({name: 'main'});
 
 // Load config
-const configName = process.env['EVD_CONFIG'] || './config.json';
-logger.info('Loading config from: %s', configName);
+const rootPath = process.env['EVD_ROOT'] || __dirname;
+logger.info('Using %s as the root directory.', rootPath);
+
+const configName = path.join(rootPath, 'config.json');
+logger.info('Loading config file %s', configName);
+
 const config = Config.loadFrom(configName);
-logger.debug('Config loaded.');
+logger.info('Successfully loaded config.');
 
 // Set the global log level
 const level = config.log.level;
@@ -27,7 +32,7 @@ logger.info('Setting log level to %s.', level);
 logger.level(level);
 
 // Start up templating (register handlebars helpers)
-Template.registerHelpers(config);
+Template.registerHelpers(config, rootPath);
 
 // Fork or specialize
 let serviceType;
@@ -36,14 +41,14 @@ if (cluster.isMaster) {
   serviceType = Manager;
 } else {
   // Launch the worker main
-  let {WORKER_ROLE: role, WORKER_ID: id} = process.env;
-  logger.info('Launching worker process %s as %s.', id, role);
+  let {WORKER_ROLE: role} = process.env;
+  logger.info('Launching worker process %s as %s.', cluster.worker.id, role);
   if (role === 'worker') {
     serviceType = Worker;
   } else if (role === 'server') {
     serviceType = Server;
   } else {
-    logger.error('Unknown process role: %s', role);
+    logger.error('Unknown role %s for worker %s.', role, cluster.worker.id);
   }
 }
 
