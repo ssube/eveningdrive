@@ -33,6 +33,10 @@ To run eveningdriver, you need to specify the directory in which
 EVD_ROOT="~/evd" node target/main/main.js
 ```
 
+The redis and statsd instances should be running before eveningdriver
+is started. The application will work without statsd, but requires
+redis to manage events.
+
 ## Event Flow
 New events are created from requests to the webhook API or by scheduled
 generators. The request body and query parameters or the generator's
