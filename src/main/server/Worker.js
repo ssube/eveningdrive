@@ -36,7 +36,7 @@ export default class Worker {
 
       try {
         return transform.process(event, job.jobId).then(output => {
-          if (output) {
+          if (typeof output === 'object') {
             logger.debug('Received output event.');
             this._stats.counter(`transform.${source}.events_sent`);
             return this._queues.add(output, source);

@@ -19,13 +19,13 @@ export default class Template {
     }
 
     handlebars.registerHelper('path', (path, data) => {
-      logger.info('Executing template path helper.', path, data);
+      logger.debug('Executing template path helper.', path, data);
       return JSON.stringify(jsonpath.eval(data, path));
     });
 
     handlebars.registerHelper('shared', (path) => {
       const value = jsonpath.eval(config.shared, path);
-      logger.info('Executing template conf helper.', {path, value, shared: config.shared});
+      logger.debug('Executing template conf helper.', {path, value, shared: config.shared});
       return value;
     });
   }
