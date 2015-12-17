@@ -18,15 +18,20 @@ export default class Template {
       _rootPath = rootPath;
     }
 
+    handlebars.registerHelper('clone', (data) => {
+      _logger.debug('Executing template clone helper.', {data});
+      return new handlebars.SafeString(JSON.stringify(data));
+    });
+
     handlebars.registerHelper('path', (path, data) => {
       _logger.debug('Executing template path helper.', path, data);
-      return JSON.stringify(jsonpath.eval(data, path));
+      return new handlebars.SafeString(JSON.stringify(jsonpath.eval(data, path)));
     });
 
     handlebars.registerHelper('shared', (path) => {
       const value = jsonpath.eval(config.shared, path);
-      _logger.debug('Executing template conf helper.', {path, value, shared: config.shared});
-      return value;
+      _logger.debug('Executing template shared helper.', {path, value, shared: config.shared});
+      return new handlebars.SafeString(JSON.stringify(value));
     });
   }
 

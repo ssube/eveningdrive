@@ -55,8 +55,13 @@ export default class Scheduler {
     const count = schedule.count++;
     const event = schedule.body.render({count, id, time});
 
-    this._queues.add(event, 0, schedule.target).then(jobs => {
-      this._logger.info('Scheduled %s jobs at %s (tick %s).', jobs.length, time, count);
-    });
+    try {
+      const eventData = JSON.parse(event);
+      this._queues.add(eventData, 0, schedule.target).then(jobs => {
+        this._logger.info('Scheduled %s jobs at %s (tick %s).', jobs.length, time, count);
+      });
+    } catch (e) {
+      this._logger.warn(e, 'Error parsing schedule %s body.', id, {event});
+    }
   }
 }
