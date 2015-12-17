@@ -11,7 +11,7 @@ export default class Scheduler {
 
   constructor(config, logger) {
     this._logger = logger.child({class: 'Scheduler'});
-    this._queues = new QueuePool(config);
+    this._queues = new QueuePool(config, logger);
 
     this._schedules = config.schedule.map(opts => {
       const {id, body, target} = opts;

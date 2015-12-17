@@ -1,12 +1,9 @@
-import bunyan from 'bunyan';
 import Promise from 'bluebird';
 
 import Template from '../server/Template';
 
-const logger = bunyan.createLogger({name: 'Transform'});
-
 export default class Transform {
-  static create(type, opts, config) {
+  static create(type, opts, config, logger) {
     let constructor;
     switch (type) {
       case 'filter':
@@ -31,17 +28,17 @@ export default class Transform {
         constructor = require('./TemplateTransform').default;
         break;
       default:
-        logger.warn('Creating unknown transform type %s for transform %s.', type, opts.id);
         constructor = Transform;
+        break;
     }
 
-    return new constructor(opts, config);
+    return new constructor(opts, config, logger);
   }
 
-  constructor({id, inputs, opts}) {
+  constructor({id, inputs, opts}, config, logger) {
     this._id = id;
     this._inputs = inputs;
-    this._logger = bunyan.createLogger({name: `${this.constructor.name}-${this._id}`});
+    this._logger = logger.child({class: this.constructor.name, id});
     this._opts = opts;
   }
 
@@ -82,7 +79,7 @@ export default class Transform {
    * event with this transform as the source.
    **/
   process(event, eventId) {
-    logger.warn(
+    this._logger.warn(
       'Processing event %s from base transform interface (no processing will occur).', eventId
     );
     return this.emit(null);

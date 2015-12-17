@@ -33,7 +33,7 @@ logger.info('Setting log level to %s.', level);
 logger.level(level);
 
 // Start up templating (register handlebars helpers)
-Template.registerHelpers(config, rootPath);
+Template.registerHelpers(config, logger, rootPath);
 
 // Fork or specialize
 let serviceType;

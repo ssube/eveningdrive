@@ -7,8 +7,8 @@ import Transform from './Transform';
  * @TODO: add support for nested conditions, AND/OR
  **/
 export default class FilterTransform extends Transform {
-  constructor(opts) {
-    super(opts);
+  constructor(opts, config, logger) {
+    super(opts, config, logger);
 
     this._value = this.getOption('value');
     this._expected = this.getOption('expected');

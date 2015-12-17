@@ -1,11 +1,10 @@
 import https from 'https';
-import bunyan from 'bunyan';
 
 import Transform from './Transform';
 
 export default class SlackTransform extends Transform {
-  constructor(opts) {
-    super(opts);
+  constructor(opts, config, logger) {
+    super(opts, config, logger);
 
     this._attachments = this.getOption('attachments', '');
     this._channel = this.getOption('channel');

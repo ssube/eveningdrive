@@ -1,9 +1,8 @@
-import bunyan from 'bunyan';
 import fs from 'fs';
 import handlebars from 'handlebars';
 import jsonpath from 'JSONPath';
 
-const logger = bunyan.createLogger({name: 'Template'});
+let _logger;
 let _rootPath = process.cwd();
 
 export default class Template {
@@ -11,21 +10,22 @@ export default class Template {
    * Works around a problem in handlebars, where helpers have to be registered
    * at a global level.
    **/
-  static registerHelpers(config, rootPath = null) {
-    logger.info('Registering template helpers with root path %s.', rootPath);
+  static registerHelpers(config, logger, rootPath = null) {
+    _logger = logger.child({class: 'Template'});
+    _logger.info('Registering template helpers with root path %s.', rootPath);
 
     if (rootPath) {
       _rootPath = rootPath;
     }
 
     handlebars.registerHelper('path', (path, data) => {
-      logger.debug('Executing template path helper.', path, data);
+      _logger.debug('Executing template path helper.', path, data);
       return JSON.stringify(jsonpath.eval(data, path));
     });
 
     handlebars.registerHelper('shared', (path) => {
       const value = jsonpath.eval(config.shared, path);
-      logger.debug('Executing template conf helper.', {path, value, shared: config.shared});
+      _logger.debug('Executing template conf helper.', {path, value, shared: config.shared});
       return value;
     });
   }
@@ -38,10 +38,10 @@ export default class Template {
     const prefix = 'file://';
     if (string.indexOf(prefix) === 0) {
       const filename = Template.parsePath(string.substr(prefix.length));
-      logger.debug('Loading template from file %s.', filename);
+      _logger.debug('Loading template from file %s.', filename);
       return fs.readFileSync(filename, 'utf8');
     } else {
-      logger.debug('Compiling template from string.', {string});
+      _logger.debug('Compiling template from string.', {string});
       return string;
     }
   }

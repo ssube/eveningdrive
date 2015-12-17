@@ -1,4 +1,3 @@
-import bunyan from 'bunyan';
 import Promise from 'bluebird';
 
 import QueuePool from './QueuePool';
@@ -14,13 +13,13 @@ export default class Worker {
     this._config = config;
     this._logger = logger.child({class: 'Worker'});
     this._transforms = config.transform.reduce((p, transformOpts) => {
-      const transform = Transform.create(transformOpts.class, transformOpts, config);
+      const transform = Transform.create(transformOpts.class, transformOpts, config, logger);
       p[transform.id] = transform;
       return p;
     }, {});
 
-    this._queues = new QueuePool(config);
-    this._stats = new Stats(config);
+    this._queues = new QueuePool(config, logger);
+    this._stats = new Stats(config, logger);
   }
 
   listen() {

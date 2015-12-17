@@ -1,10 +1,9 @@
 import bull from 'bull';
-import bunyan from 'bunyan';
 import Promise from 'bluebird';
 import Utils from './Utils';
 
 export default class Queue {
-  constructor(config) {
+  constructor(config, logger) {
     const {host, id, name, pass = null, port, prefix} = config;
 
     this._id = id;
@@ -14,7 +13,7 @@ export default class Queue {
       prefix
     });
 
-    this._logger = bunyan.createLogger({name: `Queue-${id}`});
+    this._logger = logger.child({class: 'Queue', queue: id});
   }
 
   get id() {

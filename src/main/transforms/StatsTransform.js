@@ -2,9 +2,10 @@ import Transform from './Transform';
 import Stats from '../server/Stats';
 
 export default class StatsTransform extends Transform {
-  constructor(opts, config) {
-    super(opts);
-    this._stats = new Stats(config);
+  constructor(opts, config, logger) {
+    super(opts, config, logger);
+    
+    this._stats = new Stats(config, logger);
     this._type = this.getOption('type', 'increment');
     this._name = this.getOption('name');
     this._value = this.getOption('value', '1');

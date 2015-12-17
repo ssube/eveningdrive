@@ -4,8 +4,8 @@ import https from 'https';
 import Transform from './Transform';
 
 export default class RequestTransform extends Transform {
-  constructor(opts) {
-    super(opts);
+  constructor(opts, config, logger) {
+    super(opts, config, logger);
     this._host = this.getOption('host');
     this._port = this.getOption('port', '80');
     this._protocol = this.getOption('protocol', 'http');

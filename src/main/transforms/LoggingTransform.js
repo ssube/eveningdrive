@@ -1,10 +1,8 @@
-import bunyan from 'bunyan';
-
 import Transform from './Transform';
 
 export default class LoggingTransform extends Transform {
-  constructor(opts) {
-    super(opts);
+  constructor(opts, config, logger) {
+    super(opts, config, logger);
   }
 
   process(event, eventId) {

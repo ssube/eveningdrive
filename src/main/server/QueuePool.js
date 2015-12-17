@@ -1,18 +1,15 @@
-import bunyan from 'bunyan';
 import Promise from 'bluebird';
 
 import Queue from './Queue';
 import Utils from './Utils';
-
-const logger = bunyan.createLogger({name: 'QueuePool'});
 
 export default class QueuePool {
   /**
    * @param links A hash where keys are the IDs of each queue and the value is an array
    *              of input queues (sink:[sources])
    **/
-  constructor(config) {
-    logger.info('Creating queue pool.');
+  constructor(config, logger) {
+    this._logger = logger.child({class: 'QueuePool'});
 
     let transforms = config.transform;
     this._links = transforms.reduce((p, transform) => {
@@ -24,7 +21,7 @@ export default class QueuePool {
     let {host, port} = config.redis;
     this._queues = Object.keys(this._links).map(id => {
       const name = `${prefix}-${id}`;
-      return new Queue({id, host, name, port});
+      return new Queue({id, host, name, port}, this._logger);
     });
 
     this._job = config.worker.job;
@@ -36,7 +33,7 @@ export default class QueuePool {
 
   listen(cb) {
     return Promise.all(this._queues.map(queue => queue.listen(job => {
-      logger.info('Received event %s for transform %s.', job.jobId, queue.id);
+      this._logger.info('Received event %s for transform %s.', job.jobId, queue.id);
       return cb(queue, job);
     })));
   }
@@ -58,7 +55,7 @@ export default class QueuePool {
   }
 
   add(event, source, targets = []) {
-    logger.info('Creating event from %s.', source, {event, targets});
+    this._logger.info('Creating event from %s.', source, {event, targets});
 
     const inputSinks = Object.keys(this._links).filter(link => {
       const sources = this._links[link];
@@ -76,12 +73,12 @@ export default class QueuePool {
 
       return Promise.all(queues.map(queue => {
         return queue.add(event, this._job).then(job => {
-          logger.info('Created event %s.', job.id);
+          this._logger.info('Created event %s.', job.id);
           return job;
         });
       }));
     } else {
-      logger.debug('No destination found, skipping event.');
+      this._logger.debug('No destination found, skipping event.');
       return Promise.resolve([]);
     }
   }

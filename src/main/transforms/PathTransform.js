@@ -4,8 +4,8 @@ import Promise from 'bluebird';
 import Transform from './Transform';
 
 export default class PathTransform extends Transform {
-  constructor(opts) {
-    super(opts);
+  constructor(opts, config, logger) {
+    super(opts, config, logger);
   }
 
   process(event) {
@@ -13,7 +13,7 @@ export default class PathTransform extends Transform {
       p[key] = jsonpath.eval(event, this._opts[key]);
       return p;
     }, {});
-    
+
     return this.emit(output);
   }
 }
