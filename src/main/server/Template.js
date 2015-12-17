@@ -6,6 +6,15 @@ let _logger;
 let _rootPath = process.cwd();
 
 export default class Template {
+  static lookup(data, path, single) {
+    const results = jsonpath.eval(data, path);
+    let value = single ? results[0] : results;
+    if (typeof value === 'object') {
+      value = JSON.stringify(value);
+    }
+    return value;
+  }
+
   /**
    * Works around a problem in handlebars, where helpers have to be registered
    * at a global level.
@@ -23,15 +32,16 @@ export default class Template {
       return new handlebars.SafeString(JSON.stringify(data));
     });
 
-    handlebars.registerHelper('path', (path, data) => {
-      _logger.debug('Executing template path helper.', path, data);
-      return new handlebars.SafeString(JSON.stringify(jsonpath.eval(data, path)));
+    handlebars.registerHelper('path', (path, data, single = true) => {
+      const value = Template.lookup(data, path, single);
+      _logger.debug('Executing template path helper.', {path, value, data, single});
+      return new handlebars.SafeString(value);
     });
 
-    handlebars.registerHelper('shared', (path) => {
-      const value = jsonpath.eval(config.shared, path);
-      _logger.debug('Executing template shared helper.', {path, value, shared: config.shared});
-      return new handlebars.SafeString(JSON.stringify(value));
+    handlebars.registerHelper('shared', (path, single = true) => {
+      const value = Template.lookup(config.shared, path, single);
+      _logger.debug('Executing template shared helper.', {path, value});
+      return new handlebars.SafeString(value);
     });
   }
 
