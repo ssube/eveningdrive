@@ -24,7 +24,7 @@ export default class StatsTransform extends Transform {
       switch (type) {
         case 'increment':
           this._logger.debug('Sending stats increment.', {name, value});
-          this._stats.increment(name, value);
+          this._stats.counter(name, value);
           break;
         case 'gauge':
           this._logger.debug('Sending stats guage.', {name, value});
