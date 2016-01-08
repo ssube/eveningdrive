@@ -27,6 +27,11 @@ export default class Template {
       _rootPath = rootPath;
     }
 
+    handlebars.registerHelper('safe', (string) => {
+      _logger.debug('Executing template safe helper.', {string});
+      return string.replace('\\', '\\\\');
+    });
+
     handlebars.registerHelper('clone', (data) => {
       _logger.debug('Executing template clone helper.', {data});
       return new handlebars.SafeString(JSON.stringify(data));
