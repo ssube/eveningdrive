@@ -4,7 +4,7 @@ import Stats from '../server/Stats';
 export default class StatsTransform extends Transform {
   constructor(opts, config, logger) {
     super(opts, config, logger);
-    
+
     this._stats = new Stats(config, logger);
     this._type = this.getOption('type', 'increment');
     this._name = this.getOption('name');
@@ -30,7 +30,7 @@ export default class StatsTransform extends Transform {
           break;
       }
 
-      return this.emit();
+      return this.emit(null);
     } catch (e) {
       return this.fail(e);
     }
