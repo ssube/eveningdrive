@@ -22,7 +22,7 @@ export default class Server {
 
     this._app = express();
     this._app.use(this._stats.client.helpers.getExpressMiddleware('server.global'));
-    this._app.use(bodyParser.json());
+    this._app.use(bodyParser.json({limit: config.server.limit}));
   }
 
   get stats() {
