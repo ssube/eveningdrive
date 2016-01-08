@@ -23,7 +23,7 @@ export default class StatsTransform extends Transform {
 
       switch (type) {
         case 'increment':
-          this._stats.increment(key, value);
+          this._stats.increment(name, value);
           break;
         case 'gauge':
           this._stats.gauge(name, value);
