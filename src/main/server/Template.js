@@ -29,7 +29,7 @@ export default class Template {
 
     handlebars.registerHelper('safe', (string) => {
       _logger.debug('Executing template safe helper.', {string});
-      return string.replace('\\', '\\\\');
+      return string.replace('\n', '\\n');
     });
 
     handlebars.registerHelper('clone', (data) => {
