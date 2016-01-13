@@ -1,52 +1,21 @@
 import Transform from './Transform';
+import PredicateCompiler from '../predicate/PredicateCompiler';
 
 /**
  * Filters incoming events and selectively emits ones that match
  * the params.
- *
- * @TODO: add support for nested conditions, AND/OR
  **/
 export default class FilterTransform extends Transform {
   constructor(opts, config, logger) {
     super(opts, config, logger);
 
-    this._value = this.getOption('value');
-    this._expected = this.getOption('expected');
-    this._operator = this.getOption('operator');
-  }
-
-  test(a, op, b) {
-    switch (op) {
-      case '==':
-        return (a == b);
-      case '!=':
-        return (a != b);
-      case '>':
-        return (a > b);
-      case '>=':
-        return (a >= b);
-      case '<':
-        return (a < b);
-      case '<=':
-        return (a <= b);
-      default:
-        this._logger.warn('Unknown operator %s.', op);
-        return false;
-    }
+    this._predicate = PredicateCompiler.compile(this._opts.predicate);
   }
 
   process(event, eventId) {
-    const value = this._value.render(event);
-    const expected = this._expected.render(event);
-    const operator = this._operator.render(event);
+    this._logger.info('Processing event %s.', eventId);
 
-    this._logger.info('Processing event %s.', eventId, {
-      value, operator, expected
-    });
-
-    const results = this.test(value, operator, expected);
-
-    if (results) {
+    if (this._predicate.test(event)) {
       return this.emit(event);
     } else {
       return this.emit(null);
