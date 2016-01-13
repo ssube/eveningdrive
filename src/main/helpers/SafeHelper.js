@@ -5,7 +5,11 @@ export default function SafeHelper(config, logger) {
     name,
     cb: (string) => {
       _logger.debug('Executing template safe helper.', {string});
-      return string.replace(/\n/g, '\\n').replace(/\r/g, '').replace(/"/, '\"');
+      if (string) {
+        return string.replace(/\n/g, '\\n').replace(/\r/g, '').replace(/"/, '\"');
+      } else {
+        return '';
+      }
     }
   };
 }

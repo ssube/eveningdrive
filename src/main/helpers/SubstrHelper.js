@@ -5,7 +5,11 @@ export default function SubstrHelper(config, logger) {
     name,
     cb: (string, len) => {
       _logger.debug('Executing template substr helper.', {string, len});
-      return string.substr(0, len);
+      if (string) {
+        return string.substr(0, len);
+      } else {
+        return '';
+      }
     }
   };
 }
