@@ -1,7 +1,7 @@
 import Promise from 'bluebird';
 
 import Queue from './Queue';
-import Utils from './Utils';
+import Utils from '../Utils';
 
 export default class QueuePool {
   /**

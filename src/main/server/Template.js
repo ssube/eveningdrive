@@ -1,24 +1,12 @@
 import fs from 'fs';
 import handlebars from 'handlebars';
-import jsonpath from 'JSONPath';
+
+import Helpers from '../helpers/Helpers';
 
 let _logger;
 let _rootPath = process.cwd();
 
 export default class Template {
-  static lookup(data, path, single) {
-    const results = jsonpath.eval(data, path);
-    let value = single ? results[0] : results;
-    if (typeof value === 'object') {
-      value = JSON.stringify(value);
-    }
-    return value;
-  }
-
-  /**
-   * Works around a problem in handlebars, where helpers have to be registered
-   * at a global level.
-   **/
   static registerHelpers(config, logger, rootPath = null) {
     _logger = logger.child({class: 'Template'});
     _logger.info('Registering template helpers with root path %s.', rootPath);
@@ -27,27 +15,7 @@ export default class Template {
       _rootPath = rootPath;
     }
 
-    handlebars.registerHelper('safe', (string) => {
-      _logger.debug('Executing template safe helper.', {string});
-      return string.replace(/\n/g, '\\n').replace(/\r/g, '').replace(/"/, '&quot;');
-    });
-
-    handlebars.registerHelper('clone', (data) => {
-      _logger.debug('Executing template clone helper.', {data});
-      return new handlebars.SafeString(JSON.stringify(data));
-    });
-
-    handlebars.registerHelper('path', (path, data, single = true) => {
-      const value = Template.lookup(data, path, single);
-      _logger.debug('Executing template path helper.', {path, value, data, single});
-      return new handlebars.SafeString(value);
-    });
-
-    handlebars.registerHelper('shared', (path, single = true) => {
-      const value = Template.lookup(config.shared, path, single);
-      _logger.debug('Executing template shared helper.', {path, value});
-      return new handlebars.SafeString(value);
-    });
+    Helpers(config, handlebars, logger);
   }
 
   static parsePath(path) {

@@ -1,6 +1,6 @@
 import bull from 'bull';
 import Promise from 'bluebird';
-import Utils from './Utils';
+import Utils from '../Utils';
 
 export default class Queue {
   constructor(config, logger) {
