@@ -27,7 +27,8 @@
   },
   "statsd": {
     "host": "127.0.0.1",
-    "port": 8125
+    "port": 8125,
+    "prefix": "evd"
   },
   "transform": [{
     "class": "logging",

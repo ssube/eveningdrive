@@ -7,9 +7,7 @@ export default class Stats {
 
     const stats = config.statsd;
     this._logger.info('Starting StatsD client.');
-    this._statsd = new SDC({
-      host: stats.host
-    });
+    this._statsd = new SDC(stats);
   }
 
   /**
