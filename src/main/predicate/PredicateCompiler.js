@@ -26,7 +26,7 @@ export default class PredicateCompiler {
       case 'lteq':
         return new LteqPredicate(opts);
       case 'neq':
-        return new NePredicate(opts);
+        return new NeqPredicate(opts);
       case 'or':
         return new OrPredicate({sub});
     }
