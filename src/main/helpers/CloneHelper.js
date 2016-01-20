@@ -1,3 +1,5 @@
+import handlebars from './handlebars';
+
 const name = 'clone';
 export default function CloneHelper(config, logger) {
   const _logger = logger.child({helper: name});
