@@ -1,3 +1,8 @@
+const chars = {
+  '\n': '\\\\n',
+  '\\': '\\\\'
+};
+
 const name = 'safe';
 export default function SafeHelper(config, logger) {
   const _logger = logger.child({helper: name});
@@ -6,7 +11,9 @@ export default function SafeHelper(config, logger) {
     cb: (string) => {
       _logger.debug('Executing template safe helper.', {string});
       if (string) {
-        return string.replace(/(\\[bfnrt"\\])/g, '\\$1');
+        return string.replace(/([\b\f\n\r\t"\\])/g, (match, char) => {
+          return chars[char] || '';
+        });
       } else {
         return '';
       }
