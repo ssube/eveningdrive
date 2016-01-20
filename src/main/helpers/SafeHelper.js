@@ -6,7 +6,7 @@ export default function SafeHelper(config, logger) {
     cb: (string) => {
       _logger.debug('Executing template safe helper.', {string});
       if (string) {
-        return string.replace(/\n/g, '\\n').replace(/\r/g, '').replace(/"/, '\"');
+        return string.replace(/(\\[bfnrt"\\])/g, '\\$1');
       } else {
         return '';
       }
